@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="cn.creditloans.core.dao.EnterpriseUserDao">
+
+	<resultMap id="enterpriseUserResultMap" type="cn.creditloans.core.entity.enterprise.EnterpriseUser">
+        <id property="id" column="id" />
+        <result property="enterpriseId" column="enterprise_id"/>
+        <result property="depId" column="dep_id"/>
+        <result property="name" column="name"/>
+        <result property="password" column="password"/>
+        <result property="email" column="email"/>
+        <result property="tel" column="tel"/>
+        <result property="mobile" column="mobile"/>
+        <result property="fax" column="fax"/>
+        <result property="isinvalid" column="isinvalid"/>
+        <result property="token" column="token"/>
+        <result property="type" column="type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+	
+	<resultMap id="cascadeEnterpriseUserRoleResultMap" type="cn.creditloans.core.entity.enterprise.EnterpriseUser" extends="enterpriseUserResultMap">  
+        <collection property="enterpriseUserRoleList" javaType="ArrayList" column="id" ofType="cn.creditloans.core.entity.enterprise.EnterpriseUserRole" 
+                    select="selectEnterpriseUserRoleListByUserId"/>           
+    </resultMap>
+    
+    <resultMap id="enterpriseUserRoleResultMap" type="cn.creditloans.core.entity.enterprise.EnterpriseUserRole">
+        <id property="id" column="id" />
+        <result property="userId" column="user_id"/>
+        <result property="roleId" column="role_id"/>
+    </resultMap>
+    
+	<select id="selectCascadeEnterpriseUserByUserId" parameterType="int" resultMap="cascadeEnterpriseUserRoleResultMap" >
+        select id, enterprise_id, dep_id, name, password, email, tel, mobile, fax, isinvalid, token, type, create_time, update_time from enterprise_user where id = #{userId}
+    </select>
+    
+    <select id="selectEnterpriseUserRoleListByUserId" parameterType="int" resultMap="enterpriseUserRoleResultMap">
+        select id, user_id, role_id from enterprise_user_role where user_id = #{id}
+    </select>
+    
+	<select id="selectEnterpriseUserByToken" resultMap="enterpriseUserResultMap" parameterType="String">
+		select id, enterprise_id, dep_id, name, password, email, tel, mobile, fax, isinvalid, token, type, create_time, update_time from enterprise_user where token = #{token}
+	</select>
+	
+	<select id="selectEnterpriseUserByEmail" resultMap="enterpriseUserResultMap" parameterType="String">
+		select id, enterprise_id, dep_id, name, password, email, tel, mobile, fax, isinvalid, token, type, create_time, update_time from enterprise_user where email = #{email}
+	</select>
+	
+	<select id="selectEnterpriseUserRoleCountByRoleId" resultType="int" parameterType="int">
+		select count(1) from enterprise_user_role where role_id = #{roleId}
+	</select>
+	
+	<select id="selectEnterpriseUserPageCount" resultType="int" parameterType="cn.creditloans.core.entity.enterprise.EnterpriseUser">
+    	select count(1) from enterprise_user where type=#{type} and enterprise_id in (select id from enterprise where id = #{enterpriseId} or fid = #{enterpriseId})
+		<if test="depId != 0">  
+			and dep_id = #{depId}  
+		</if>
+        <if test="name != null and '' != name">  
+			and name like '%${name}%' 
+		</if>
+		<if test="email != null and '' != email">  
+			and email like '%${email}%' 
+		</if>
+		<if test="isinvalid == 1">  
+			and isinvalid = #{isinvalid}  
+		</if>
+    </select>
+    
+    <select id="selectEnterpriseUserPageList" resultMap="enterpriseUserResultMap">
+        select id, enterprise_id, dep_id, name, password, email, tel, mobile, fax, isinvalid, token, type, create_time, update_time from enterprise_user
+        where type=#{user.type} and enterprise_id in (select id from enterprise where id = #{user.enterpriseId} or fid = #{user.enterpriseId})
+		<if test="user.depId != 0">  
+			and dep_id = #{user.depId}  
+		</if>
+        <if test="user.name != null and '' != user.name">  
+			and name like '%${user.name}%' 
+		</if>
+		<if test="user.email != null and '' != user.email">  
+			and email like '%${user.email}%' 
+		</if>
+		<if test="user.isinvalid == 1">  
+			and isinvalid = #{user.isinvalid}  
+		</if>
+		order by create_time desc limit #{pm.pageSize} offset #{pm.startCount}
+    </select>
+    
+    <select id="selectEnterpriseUserByRoleId" parameterType="int" resultMap="enterpriseUserResultMap">
+    	select id, password, email from enterprise_user where id = (select user_id from enterprise_user_role where role_id=#{roleId})
+    </select>
+    
+    <insert id="insertEnterpriseUser" parameterType="cn.creditloans.core.entity.enterprise.EnterpriseUser">
+    	<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+			SELECT currval('enterprise_user_id_seq')
+		</selectKey>
+		
+		insert into enterprise_user (enterprise_id, dep_id, name, password, email, tel, mobile, fax, isinvalid, token, type, create_time, update_time)
+					values (#{enterpriseId}, #{depId}, #{name}, #{password}, #{email}, #{tel}, #{mobile}, #{fax}, #{isinvalid}, #{token}, #{type}, now(), now())
+    </insert>
+    
+	<insert id="batchInsertEnterpriseUserRole" parameterType="java.util.List">
+        insert into enterprise_user_role (user_id, role_id, create_time, update_time)  
+        VALUES  
+        <foreach collection="list" item="item" index="index" separator=",">  
+            (#{item.userId}, #{item.roleId}, now(), now())
+        </foreach>  
+    </insert>
+    
+    <update id="updateEnterpriseUser" parameterType="cn.creditloans.core.entity.enterprise.EnterpriseUser">
+    	update enterprise_user set enterprise_id=#{enterpriseId}, dep_id=#{depId}, name=#{name}, password=#{password}, email=#{email}, 
+    					tel=#{tel}, mobile=#{mobile}, fax=#{fax}, isinvalid=#{isinvalid}, token=#{token}, update_time=now()  where id=#{id}
+    </update>
+    
+    <update id="updateEnterpriseUserPassword" >
+    	update enterprise_user set password = #{password}, update_time = now() where id = #{id}
+    </update>
+    
+    <update id="updateEnterpriseUserToken"  parameterType="cn.creditloans.core.entity.enterprise.EnterpriseUser">
+    	update enterprise_user set token = #{token}, update_time = now() where id = #{id}
+    </update>
+    
+    <update id="updateEnterpriseUserIsinvalid"  parameterType="cn.creditloans.core.entity.enterprise.EnterpriseUser">
+    	update enterprise_user set isinvalid = #{isinvalid}, update_time = now() where id = #{id}
+    </update>
+    
+    <delete id="deleteEnterpriseUserByUserId" parameterType="int">
+    	delete from enterprise_user where id=#{userId}
+    </delete>
+    
+    <delete id="deleteEnterpriseUserRoleByUserId" parameterType="int">
+    	delete from enterprise_user_role where user_id=#{userId}
+    </delete>
+    
+</mapper>    

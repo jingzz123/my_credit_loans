@@ -1,0 +1,172 @@
+<%@ page language="java" contentType="text/html; charset=utf-8"  pageEncoding="utf-8"%>
+<%@ include  file="./../../common/header.jsp"%>
+
+<script type="text/javascript">
+
+function query(page){
+	$("#currentPage").val(page);
+	$('#queryForm').submit();
+}
+
+function add(){
+	window.location.href = "${pageContext.request.contextPath}/alarm/item/add";
+}
+
+function edit(alarmItemId){
+	window.location.href = "${pageContext.request.contextPath}/alarm/item/edit?alarmItemId="+alarmItemId;
+}
+
+function del(alarmItemId){
+	if (!confirm("是否删除该报警项?")) {
+		return;
+	}
+	
+	jQuery.ajax({
+        type: 'POST',
+        url: "${pageContext.request.contextPath}/alarm/item/doDelete",
+        data: "alarmItemId="+alarmItemId,
+        success: function () {
+        	alert("删除成功!");
+        	window.location.href="${pageContext.request.contextPath}/alarm/item/showList";
+        },
+        error: function (data) {
+        	alert("删除报警项错误!");
+        	/* var err_msg = data.responseText;
+        	if(err_msg.indexOf("账户异常，请重新登录")) {
+	        	alert("账户异常，请重新登录");
+	        	window.location.href="${pageContext.request.contextPath}/login";
+        	} else {
+	        	alert("删除报警项错误!");
+        	} */
+        }
+    });
+}
+
+//jquery.twbsPagination.js 分页功能
+$(function(){
+	var options = {
+		totalPages:${alarmItemPage.totalPage},
+		startPage:${alarmItemPage.currentPage},
+		visiblePages: 5,
+		first: '&#124;&lt;',
+		prev: '&lsaquo;',
+		next: '&rsaquo;',
+		last: '&gt;&#124;',
+        onPageClick: function (event, page) {
+        	query(page);
+        }
+        
+	}
+	$('#page').twbsPagination(options);
+	
+})
+
+
+</script>
+	<!-- 二级菜单 begin -->
+		<div class="sidebar" id="sidebar">
+			<div class="sidebar-shortcuts" id="sidebar-shortcuts">
+				<div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
+					<div class="icon-text"> <i class="icon-warning-sign"></i> <span> 报警设置 </span></div>
+				</div>
+			</div>
+			<!-- #sidebar-shortcuts -->
+			<ul class="nav nav-list">
+				<li> <a href="${pageContext.request.contextPath}/alarm/class/showList"> <i class="icon-th-large"></i> <span class="menu-text"> 报警分类 </span> </a> </li>
+				<li class="active"> <a href="${pageContext.request.contextPath}/alarm/item/showList"> <i class="icon-list"></i> <span class="menu-text"> 报警项 </span> </a> </li>	
+			</ul>
+			<!-- /.nav-list -->
+			<div class="sidebar-collapse" id="sidebar-collapse"> <i class="icon-double-angle-left" data-icon1="icon-double-angle-left" data-icon2="icon-double-angle-right"></i> </div>
+		</div>
+		<!-- 二级菜单 end -->
+	<div class="main-content">
+		<div class="breadcrumbs" id="breadcrumbs">
+			<ul class="breadcrumb">
+				<li><i class="icon-home home-icon"></i> <a href="#">首页</a></li>
+				<li><a href="#">报警设置</a></li>
+				<li class="active">报警项</li>
+			</ul>
+			<!-- .breadcrumb -->
+		</div>
+		
+		<div class="page-content">
+			<div class="page-header">
+				<h1>
+					报警项<small> <i class="icon-double-angle-right"></i>
+						设置所有报警项信息
+					</small>
+				</h1>
+			</div><!-- /.page-header -->
+			
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="table-responsive table-responsive-a">
+						<div class="table-top-button">
+							<button class="btn btn-success" onclick="add();">
+								<i class="icon-plus-sign"></i> 添加
+							</button>
+							<!-- <button class="btn btn-danger">
+								<i class="icon-trash"></i> 删除
+							</button> -->
+						</div>
+						<div id="sample-table-2_wrapper" class="dataTables_wrapper">
+							<div class="row">
+								<form id="queryForm" action="${pageContext.request.contextPath}/alarm/item/showList" method="post">
+									<input type="hidden" id ="currentPage"  name="currentPage" value="1"/>
+									<div>
+										<span >	
+											<input type="text" name="typeName" value="${queryDto.typeName}" placeholder="输入报警类型名称" >
+										</span>
+										<span>	
+											<input type="text" name="alarmCode" value="${queryDto.alarmCode}"  placeholder="输入报警类型编码">
+										</span>
+										<span>
+										<button style="height: 30px; width: 50px;color:#FFF;border:none; background-color:#42aaec;" onclick="query(1);">
+											<i class="icon-search"></i>
+										</button>
+										</span>
+									</div>
+								</form>
+							</div>
+							<table id="alarm_class_table"
+								class="table table-striped table-bordered table-hover">
+								<thead>
+									<tr>
+										<th>编号</th>
+										<th>报警类型名称</th>
+										<th>报警类型编码</th>
+										<th>报警分类</th>
+										<th>操作</th>
+									</tr>
+								</thead>
+								<tbody>
+								<c:forEach items="${alarmItemPage.datas }" var="item" varStatus="status">
+									<tr>
+							          <td>${((alarmItemPage.currentPage*alarmItemPage.pageSize)-alarmItemPage.pageSize)+status.index + 1 }</td>
+							          <td>${item.typeName }</td>
+							          <td>${item.alarmCode }</td>							          
+							          <td>${item.className }</td>
+							          <td>
+							          	<div class="action-buttons">
+											<a class="green" href="#" onclick="edit(${item.id})"> <i class="icon-pencil bigger-130"></i></a>
+											<a class="red" href="#" onclick="del(${item.id})"> <i class="icon-trash bigger-130"></i></a>
+										</div>
+									  </td>
+							        </tr>
+						        </c:forEach>
+								</tbody>
+							</table>
+							<!-- 分页      -->
+							<div style="text-align: right;margin-top: -20px;">
+					    		<ul id="page" class="pagination"></ul>
+					    	</div>
+						</div>
+					</div>
+				</div>
+				 
+			</div> <!-- class:row -->
+			
+		</div><!-- /.page-content -->
+		
+	</div><!-- /.main-content --> 
+<%@ include  file="./../../common/footer.jsp"%>

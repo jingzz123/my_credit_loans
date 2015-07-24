@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="cn.creditloans.core.dao.af.RulesetElementDao">
+
+	<resultMap id="resultMap" type="cn.creditloans.core.entity.af.RulesetElement">
+        <id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="description" column="description" />
+		<result property="baseId" column="base_id" />
+		<result property="isInner" column="is_inner" />
+		<result property="departmentId" column="department_id" />
+		<result property="isUsed" column="is_used" />
+		<result property="createUserId" column="create_user_id" />
+		<result property="createTime" column="create_time" />
+		<result property="upadteUserId" column="upadte_user_id" />
+		<result property="updateTime" column="update_time" />
+    </resultMap>
+    
+    <!-- 插入单个 -->
+    <insert id="insert" parameterType="cn.creditloans.core.entity.af.RulesetElement">
+    	<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+		    SELECT currval('af_ruleset_id_seq')
+		</selectKey>
+ 		INSERT INTO af_ruleset (name,description,base_id,is_inner,
+ 			department_id,is_used,create_user_id,
+ 			create_time,upadte_user_id,update_time)
+		VALUES (#{name}, #{description}, #{baseId}, #{isInner},
+			#{departmentId}, #{isUsed}, #{createUserId},
+			now(), #{upadteUserId}, now());
+    </insert>
+    
+    <!-- 修改单个 -->
+    <update id="update"  parameterType="cn.creditloans.core.entity.af.RulesetElement">
+    	update af_ruleset set name = #{name}, description = #{description}, 
+    	            is_used = #{isUsed}, is_inner = #{isInner} ,upadte_user_id = #{upadteUserId},
+					update_time = now() where id = #{id}
+    </update>
+    
+    <!-- 删除单个 -->
+    <delete id="delete" parameterType="int">
+    	delete from af_ruleset where id = #{id} 
+    </delete>
+    
+    <!-- 查询单个 -->
+    <select id="select" resultMap="resultMap" parameterType="int">
+    	select * from af_ruleset where id = #{id} 
+    </select>
+    
+    <!-- 查询所有 -->
+    <select id="selectAll" resultMap="resultMap" parameterType="int">
+    	select * from af_ruleset 
+    </select>
+    
+	<!-- 查询总量，这里的需要根据实际条件进行查询 -->
+	<select id="selectPageCount" resultType="int" parameterType="cn.creditloans.core.entity.af.RulesetElement">
+        select count(1) FROM af_ruleset where 1=1
+        <if test="name != null and '' != name">  
+			and name like '%${name}%'  
+		</if>
+		<if test="description != null and '' != description">
+			and description like '%${description}%' 
+		</if>
+    </select>
+    
+    <!-- 根据实际情况需要修改语句 -->
+    <select id="selectPageList" resultMap="resultMap">
+         select * from af_ruleset   where 1=1
+         <if test="entity.name != null and '' != entity.name">  
+			and name like '%${entity.name}%'  
+		</if>
+		<if test="entity.description != null and '' != entity.description">
+			and description like '%${entity.description}%' 
+		</if>
+          order by create_time desc limit #{pm.pageSize} offset #{pm.startCount}
+    </select>
+ <!-- 检查名字是否唯一 -->
+    <select id="selectNameIsExit" resultType="int" parameterType="string">
+    	select count(1)  from af_ruleset where name = #{name}
+    </select>
+     
+     <!-- 检查关联是否存在 -->
+    <select id="selectCountByBaseId" resultType="int" parameterType="string">
+    	select count(1)  from af_ruleset where base_id = #{baseId}
+    </select>
+</mapper>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="cn.creditloans.core.dao.ContactDao">
+
+	<resultMap id="contactResultMap" type="cn.creditloans.core.entity.enterprise.Contact">
+        <id property="id" column="id" />
+        <result property="blackId" column="black_id"/>
+        <result property="contactName" column="contact_name"/>
+        <result property="contactWork" column="contact_work"/>
+        <result property="contactTell" column="contact_tell"/>
+        <result property="contactRelationship" column="contact_relationship"/>
+    </resultMap>
+    
+    <insert id="batchSaveContact" parameterType="java.util.List">
+    	insert into contact (black_id, contact_name, contact_work, contact_tell, contact_relationship)
+    	VALUES
+    	<foreach collection="contactList" item="item" index="index" separator=",">
+    		(#{blackId}, #{contactName}, #{contactWork}, #{contactTell}, #{contactRelationship})
+    	</foreach>
+    </insert>
+</mapper>

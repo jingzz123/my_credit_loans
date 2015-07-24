@@ -1,0 +1,8 @@
+#platform user login time out(second)
+platformuser_timeout=600
+#平台管理所有功能每页显示条数
+platform_page_show_count=10
+#enterpriseuser reset password
+enterpriseuser_reset_password=111111
+#platformuser reset password
+platformuser_reset_password=111111

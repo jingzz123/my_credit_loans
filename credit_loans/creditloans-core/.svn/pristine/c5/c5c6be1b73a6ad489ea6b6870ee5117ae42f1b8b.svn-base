@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="cn.creditloans.core.dao.EnterpriseRoleDao">
+
+	<resultMap id="enterpriseRoleResultMap" type="cn.creditloans.core.entity.enterprise.EnterpriseRole">
+        <id property="id" column="id" />
+        <result property="enterpriseId" column="enterprise_id"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+	
+	<resultMap id="cascadeEnterpriseRoleMenuResultMap" type="cn.creditloans.core.entity.enterprise.EnterpriseRole" extends="enterpriseRoleResultMap">  
+        <collection property="enterpriseRoleMenuList" javaType="ArrayList" column="id" ofType="cn.creditloans.core.entity.enterprise.EnterpriseRoleMenu" 
+                    select="selectEnterpriseRoleMenuListByRoleId"/>           
+    </resultMap>
+    
+    <resultMap id="enterpriseRoleMenuResultMap" type="cn.creditloans.core.entity.enterprise.EnterpriseRoleMenu">
+        <id property="id" column="id" />
+        <result property="roleId" column="role_id"/>
+        <result property="menuId" column="menu_id"/>
+    </resultMap>
+    
+    <select id="selectCascadeEnterpriseRoleMenuByRoleId" parameterType="int" resultMap="cascadeEnterpriseRoleMenuResultMap">
+    	select id, enterprise_id, name, type, create_time, update_time from enterprise_role where id=#{roleId}
+    </select>
+    
+    <select id="selectEnterpriseRoleMenuListByRoleId" parameterType="int" resultMap="enterpriseRoleMenuResultMap">
+        select id, role_id, menu_id from enterprise_role_menu where role_id = #{id}
+    </select>
+    
+    <select id="selectEnterpriseRoleListByEnterpriseId" resultMap="enterpriseRoleResultMap">
+    	select id, enterprise_id, name, type, create_time, update_time from enterprise_role where enterprise_id=#{enterpriseId} and type = #{type}
+    </select>
+    
+    <select id="selectEnterpriseRoleMenuCountByMenuId" parameterType="int" resultType="int">
+    	select count(1) from enterprise_role_menu where menu_id=#{menuId}
+    </select>
+    
+    <select id="selectEnterpriseRolePageCount" resultType="int" parameterType="cn.creditloans.core.entity.enterprise.EnterpriseRole">
+    	select count(1) from enterprise_role where type=#{type} 	
+        <if test="enterpriseId != -1">  
+			and enterprise_id = #{enterpriseId}  
+		</if>
+        <if test="name != null and '' != name">  
+			and name like '%${name}%' 
+		</if>
+    </select>
+    
+    <select id="selectEnterpriseRolePageList" resultMap="enterpriseRoleResultMap">
+        select id, enterprise_id, name, type, create_time, update_time from enterprise_role
+        where type=#{role.type}
+        <if test="role.enterpriseId != -1">  
+			and enterprise_id = #{role.enterpriseId}  
+		</if>
+        <if test="role.name != null and '' != role.name">  
+			and name like '%${role.name}%' 
+		</if>
+		order by create_time desc limit #{pm.pageSize} offset #{pm.startCount}
+    </select>
+    
+    <insert id="insertEnterpriseRole" parameterType="cn.creditloans.core.entity.enterprise.EnterpriseRole">
+    	<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+			SELECT currval('enterprise_role_id_seq')
+		</selectKey>
+		
+		insert into enterprise_role (enterprise_id, name, type, create_time, update_time)
+					values (#{enterpriseId}, #{name}, #{type}, now(), now())
+    </insert>
+    
+    <insert id="batchInsertEnterpriseRoleMenu" parameterType="java.util.List">
+        insert into enterprise_role_menu (role_id, menu_id, create_time, update_time)  
+        VALUES  
+        <foreach collection="list" item="item" index="index" separator=",">  
+            (#{item.roleId}, #{item.menuId}, now(), now())
+        </foreach>  
+    </insert>
+    
+    <update id="updateEnterpriseRole" parameterType="cn.creditloans.core.entity.enterprise.EnterpriseRole">
+    	update enterprise_role set enterprise_id=#{enterpriseId}, name=#{name}, update_time=now() where id=#{id}
+    </update>
+    
+    <delete id="deleteEnterpriseRoleById" parameterType="int">
+    	delete from enterprise_role where id=#{roleId}
+    </delete>
+    
+    <delete id="deleteEnterpriseRoleMenuByRoleId" parameterType="int">
+    	delete from enterprise_role_menu where role_id=#{roleId}
+    </delete>
+    
+</mapper>

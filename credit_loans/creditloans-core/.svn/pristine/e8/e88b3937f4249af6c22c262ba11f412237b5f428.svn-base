@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base name="validate_CashTenantInfo">
+  <define_item>
+    <attribute name="uuid" desc="唯一码" type="LONG" allow_null="no" use="yes">
+    	<length value="19"/>
+    </attribute>
+    <attribute name="uuid" desc="唯一码的前三位必须为传入行的银行代码" begin_pos="0" end_pos="3" type="INT" allow_null="no" use="yes">
+      <!--等于传入的银行代码，这个参数会从外部获取，并put到Validator中-->
+      <compare operator="EQUAL" parameter="#bankID" desc="唯一码的前三位必须为传入行的银行代码"/>
+      <list>
+        <enumeration value="101"/>
+        <enumeration value="102"/>
+        <enumeration value="103"/>
+        <enumeration value="104"/>
+        <enumeration value="105"/>
+        <enumeration value="106"/>
+        <enumeration value="107"/>
+      </list>
+    </attribute>
+    <attribute name="uuid" desc="唯一码的4~5位必须为传入的业务类型" begin_pos="3" end_pos="5" type="STRING" allow_null="no" use="yes">
+      <list>
+        <enumeration value="01"/>
+        <enumeration value="02"/>
+        <enumeration value="03"/>
+        <enumeration value="04"/>
+        <enumeration value="05"/>
+        <enumeration value="06"/>
+        <enumeration value="07"/>
+        <enumeration value="08"/>
+      </list>
+      <!--等于传入的业务类型-->
+      <compare operator="EQUAL" parameter="#businessType" desc="唯一码的4~5位必须为传入的业务类型"/>
+    </attribute>
+    <attribute name="uuid" desc="唯一码的6~14位必须为8位日期" begin_pos="5" end_pos="13" type="IDATE" allow_null="no" use="yes"/>
+    <attribute name="bank_id" desc="银行名称" type="CSTRING" allow_null="no" use="yes">
+      <!--等于传入的银行名称-->
+      <compare operator="EQUAL" parameter="#bankName" desc="必须是传入银行的银行名称"/>
+      <list>
+        <enumeration value="光大"/>
+        <enumeration value="广发"/>
+        <enumeration value="华夏"/>
+        <enumeration value="民生"/>
+        <enumeration value="平安"/>
+        <enumeration value="兴业"/>
+        <enumeration value="中信"/>
+      </list>
+    </attribute>
+    <attribute name="validate_status" desc="信息核实状态" type="CSTRING" allow_null="no" use="yes">
+      <list>
+        <enumeration value="可疑"/>
+        <enumeration value="确认"/>
+      </list>
+    </attribute>
+    <attribute name="name" desc="商户名称" type="CSTRING" allow_null="no" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+    <attribute name="merchant_type" desc="商户类别(MCC)" type="INT" allow_null="no" use="yes">
+    	<LENGTH value="4"/>
+    </attribute>
+    <attribute name="merchant_url" desc="商户装机地址/互联网址(URL)" type="CSTRING" allow_null="no" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+    <attribute name="merchant_code" desc="商户代码（银联）" type="CSTRING" allow_null="no" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+    <attribute name="terminal_code" desc="终端号码" type="CSTRING" allow_null="no" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+    <attribute name="city" desc="商户所在城市" type="CSTRING" allow_null="yes" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+    <attribute name="acquirer" desc="收单行" type="CSTRING" allow_null="yes" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+	    <!--IDATE：yyyyMMdd-->
+    <attribute name="produced_on" desc="确认日期" type="IDATE" allow_null="yes" use="yes">
+    	<!--为空的情况，就不要进行比较-->
+    	<compare operator="GREATER_EQUAL" parameter="#begin_date" desc="确认日期不能早于负面信息有效日期"></compare>
+    	<compare operator="LESS_EQUAL" parameter="#end_date" desc="确认日期不能晚于有效日期"></compare>
+    </attribute>
+    <attribute name="comments" desc="备注" type="CSTRING" allow_null="yes" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+  </define_item>
+</base>

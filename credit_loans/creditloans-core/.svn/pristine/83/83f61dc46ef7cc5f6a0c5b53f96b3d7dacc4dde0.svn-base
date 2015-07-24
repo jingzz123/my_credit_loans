@@ -1,0 +1,38 @@
+package cn.creditloans.core.service;
+
+import cn.creditloans.core.dto.platform.BlackInfoDTO;
+import cn.creditloans.core.dto.platform.QueryCompareCondition;
+import cn.creditloans.core.dto.platform.QueryCompareResult;
+import cn.creditloans.core.dto.platform.QueryCompareResultItem;
+
+/**
+ * 黑名单信息Service
+ * @author Administrator
+ *
+ */
+public interface BlackInfoService {
+	
+	/**
+	 * 保存黑名单返回Id
+	 * @param blackInfoDTO
+	 * @return
+	 */
+	public int saveSingleBlackInfo(BlackInfoDTO blackInfoDTO, String token);
+	
+	/**
+	 * 查询比对
+	 * @param queryCompareConditionDTO
+	 * @param token
+	 * @return
+	 */
+	public QueryCompareResult queryBlackInfo(QueryCompareCondition queryCompareConditionDTO, String token);
+	
+	/**
+	 * 查询比对 联合查询
+	 * @param queryCompareConditionDTO
+	 * @param token
+	 * @return
+	 */
+	public QueryCompareResultItem jointQueryBlackInfo(QueryCompareCondition queryCompareConditionDTO, String token);
+
+}

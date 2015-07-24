@@ -1,0 +1,68 @@
+package cn.creditloans.core.service;
+
+import java.util.List;
+
+import cn.creditloans.core.dto.af.MetadataRelationDTO;
+import cn.creditloans.core.dto.af.MetadataSchemaDTO;
+import cn.creditloans.tools.page.PageModel;
+
+public interface MetadataRelationService {
+
+	/**
+	 * 分页展示relation信息
+	 * @param metadataRelationDTO
+	 * @param currentPage
+	 * @param pageSize
+	 * @return
+	 */
+	PageModel<MetadataSchemaDTO> getMetadataRelationPageList(
+			MetadataRelationDTO metadataRelationDTO, int currentPage, int pageSize);
+
+	/**
+	 * 保存relation
+	 * @param metadataRelationDTO
+	 * @return
+	 */
+	int saveMetadataRelation(MetadataRelationDTO metadataRelationDTO);
+	
+	/**
+	 * 根据mainSchemaId返回子schema信息
+	 * @param mainSchemaId
+	 * @return
+	 */
+	List<MetadataSchemaDTO> getMetadataRelationByMainSchemaId(int mainSchemaId);
+	
+	/**
+	 * 修改relation信息
+	 * @param metadataRelationDTO
+	 */
+	void updateMetadataRelation(MetadataRelationDTO metadataRelationDTO);
+	
+	/**
+	 * 根据mainSchemaId删除relation
+	 * @param mainSchemaId
+	 */
+	void deleteMetadataRelation(int mainSchemaId, int childSchemaId);
+	
+	/**
+	 * 检查名称是否存在
+	* @description 
+	* @param name
+	* @return
+	 */
+	boolean checkSchemaNameIsExist(String mainSchemaId, String childSchemaId);
+	/**
+	 * 检查sequence是否存在
+	* @description 
+	* @param sequence
+	* @return
+	 */
+	boolean checkSequenceIsExist(String sequence);
+	/**
+	 * 根据mainSchemaId,childSchemaId返回relation信息
+	 * @param mainSchemaId,childSchemaId
+	 * @return
+	 */
+	MetadataRelationDTO getMetadataRelationByIds(int mainSchemaId, int childSchemaId);
+	
+}

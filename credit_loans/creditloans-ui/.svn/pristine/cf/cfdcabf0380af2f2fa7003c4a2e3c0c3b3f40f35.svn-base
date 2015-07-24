@@ -1,0 +1,107 @@
+package cn.creditloans.ui.controllers;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import cn.creditloans.core.dto.platform.BlackInfoDTO;
+import cn.creditloans.core.dto.platform.QueryCompareCondition;
+import cn.creditloans.core.service.BlackInfoService;
+import cn.creditloans.tools.context.AppContext;
+import cn.creditloans.tools.parameters.ParameterConfig;
+import cn.creditloans.ui.util.cookie.CookieUtil;
+
+@Controller
+@RequestMapping(value = "/black")
+public class BlackController {
+	
+	private static final Log logger = LogFactory.getLog(BlackController.class);
+	
+	@Autowired
+	private BlackInfoService blackInfoService;
+	
+	/**
+	 * 跳转到黑名单增加页面 
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value="/singleAddBlack", method = {RequestMethod.GET, RequestMethod.POST})
+	public String showAddBlack(Model model) {
+		ParameterConfig parameterConfig = AppContext.getInstance().getPrCongif();
+		Map<String, String> loanMap = parameterConfig.getParameterInfo(ParameterConfig.LOAN_TYPE).getKeyValueMap();
+		Map<String, String> confirmedTypeMap = parameterConfig.getParameterInfo(ParameterConfig.CONFIRMED_TYPE).getKeyValueMap();
+		Map<String, String> contactRelationshipMap = parameterConfig.getParameterInfo(ParameterConfig.CONTACTRELATIONSHIP).getKeyValueMap();
+		model.addAttribute("loanMap", loanMap);
+		model.addAttribute("confirmedTypeMap", confirmedTypeMap);
+		model.addAttribute("contactRelationshipMap", contactRelationshipMap);
+		logger.debug("load singleAddBlack page success");
+		return "/black/upload/single_add_black";
+	}
+	
+	/**
+	 * 显示确认信息详情的选择范围
+	 * @param val
+	 * @return
+	 */
+	@RequestMapping(value="/showConfirmedDetailsMap", method = {RequestMethod.GET, RequestMethod.POST})
+	public @ResponseBody Map<String, List<String>> showConfirmedDetailsMap(@RequestParam("val")String val) {
+		List<String>keyList = new ArrayList<String>();
+		List<String>valList = new ArrayList<String>();
+		ParameterConfig parameterConfig = AppContext.getInstance().getPrCongif();
+		Map<String, String> confirmedTypeMap = parameterConfig.getParameterInfo(ParameterConfig.CONFIRMED_TYPE).getKeyValueMap();
+		String values = confirmedTypeMap.get(val);
+		String startKey = parameterConfig.getParameterInfo(ParameterConfig.CONFIRMED_TYPE_CONFIRMED_DETAILS).getValue(values);
+		Map<String, List<String>>map = new HashMap<String, List<String>>();
+		if(startKey != null && !"".equals(startKey)) {
+			Map<String, String> confirmedDetailsMap = parameterConfig.getParameterInfo(ParameterConfig.CONFIRMED_DETAILS).getKeyValueMap();
+			Set<String> set = confirmedDetailsMap.keySet();
+			for (String string : set) {
+				if(string.startsWith(startKey)) {
+					keyList.add(string);
+					valList.add(confirmedDetailsMap.get(string));
+				}
+			}
+			map.put("keyList", keyList);
+			map.put("valList", valList);
+		}
+		return map;
+	}
+	
+	@RequestMapping(value="/doSingleAddBlack", method = {RequestMethod.GET, RequestMethod.POST})
+	public @ResponseBody int doSingleAddBlack(@RequestBody BlackInfoDTO blackInfoDTO, HttpServletRequest request) {
+		String token = CookieUtil.getToken(request,"enterprise-token");
+		int id = blackInfoService.saveSingleBlackInfo(blackInfoDTO, token);
+		if(id > 0) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	
+	@RequestMapping(value="/query", method = {RequestMethod.GET, RequestMethod.POST})
+	public void queryBlackInfo(@RequestBody QueryCompareCondition queryCompareConditionDTO, HttpServletRequest request) {
+		String token = CookieUtil.getToken(request,"enterprise-token");
+		blackInfoService.queryBlackInfo(queryCompareConditionDTO, token);
+	}
+	
+	@RequestMapping(value="/notFount", method = {RequestMethod.GET, RequestMethod.POST})
+	public String notFount(){
+		return "/not_fount";
+	}
+	
+}

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="cn.creditloans.core.dao.af.BaseElementDao">
+
+	<resultMap id="resultMap" type="cn.creditloans.core.entity.af.BaseElement">
+        <id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="description" column="description" />
+		<result property="isInner" column="is_inner" />
+		<result property="departmentId" column="department_id" />
+		<result property="isUsed" column="is_used" />
+		<result property="createUserId" column="create_user_id" />
+		<result property="createTime" column="create_time" />
+		<result property="upadteUserId" column="upadte_user_id" />
+		<result property="updateTime" column="update_time" />
+		<result property="schemaId" column="schema_id" />
+    </resultMap>
+    
+    <!-- 插入单个 -->
+    <insert id="insert" parameterType="cn.creditloans.core.entity.af.BaseElement">
+    	<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+		    SELECT currval('af_base_element_id_seq')
+		</selectKey>
+ 		INSERT INTO af_base_element (name,description,is_inner,
+ 			department_id,is_used,create_user_id,
+ 			create_time,upadte_user_id,update_time,schema_id)
+		VALUES (#{name}, #{description}, #{isInner}, 
+			#{departmentId}, #{isUsed}, #{createUserId},
+			now(), #{upadteUserId}, now(),#{schemaId});
+    </insert>
+    
+    <!-- 修改单个 -->
+    <update id="update"  parameterType="cn.creditloans.core.entity.af.BaseElement">
+    	update af_base_element set name = #{name}, description = #{description}, 
+    	            is_used = #{isUsed}, upadte_user_id = #{upadteUserId},
+					update_time = now(),schema_id=#{schemaId} where id = #{id}
+    </update>
+    
+    <!-- 删除单个 -->
+    <delete id="delete" parameterType="int">
+    	delete from af_base_element where id = #{id} 
+    </delete>
+    
+    <!-- 查询单个 -->
+    <select id="select" resultMap="resultMap" parameterType="int">
+    	select * from af_base_element where id = #{id} 
+    </select>
+    
+    <!-- 查询所有 -->
+    <select id="selectAllInfos" resultMap="resultMap" parameterType="int">
+    	select * from af_base_element 
+    </select>
+    
+	<!-- 查询总量，这里的需要根据实际条件进行查询 -->
+	<select id="selectPageCount" resultType="int" parameterType="cn.creditloans.core.entity.af.BaseElement">
+        select count(1) FROM af_metadata_schema where 1=1
+        <if test="name != null and '' != name">  
+			and name like '%${name}%'  
+		</if>
+		<if test="description != null and '' != description">
+			and description like '%${description}%' 
+		</if>
+    </select>
+    
+    <!-- 根据实际情况需要修改语句 -->
+    <select id="selectPageList" resultMap="resultMap">
+         select * from af_base_element   where 1=1
+         <if test="entity.name != null and '' != entity.name">  
+			and name like '%${entity.name}%'  
+		</if>
+		<if test="entity.description != null and '' != entity.description">
+			and description like '%${entity.description}%' 
+		</if>
+         limit #{pm.pageSize} offset #{pm.startCount}
+    </select>
+
+</mapper>

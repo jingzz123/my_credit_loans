@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--parent表示配置文件所在的父目录-->
+<dbload parent="classpath:conf/validator/">
+	<schema_file name="dbloadSchema.xml"/>
+	<error_code_file name="error_intellicredit.properties"/><!--错误文件名称-->
+	<!--考虑内存问题，设定每一次批次处理的数量-->
+	<batch_count name="5000"/>
+	
+	<!-- 01：中介信息 -->
+	<flow name="AgentInfo"><!--和Schema名称相同-->
+		<!--Schema的名称-->
+		<schema name="AgentInfo">
+			<pk_columms name="uuid:0"/><!--每一个数据可以作为PK的字段，多个字段以;分隔。其中0表示升序-->
+		</schema>
+		<charset name="GBK"/><!--数据文件的编码-->
+		<!--第一行标题的信息，info表示第一行信息，need_check表示是否需要校验标题-->
+		<title info="唯一码*,通报行*,贷前/贷后*,信息核实状态*,欺诈类型*,黑中介机构名称*,机构名称虚假度,机构地址,机构地址虚假度,机构电话,机构电话虚假度,是否涉嫌套现商户,确认日期,备注" delimiter="," need_check="true"/>
+		<gap_count name="0"/><!--数据文件起始不需要的行的数量-->
+		<pk_need_check name="true"/><!--是否需要判断是否存在PK相同的情况-->
+		<validate_file name="rule/validate_AgentInfo.xml"/><!--格式校验文件名称-->
+	</flow>
+	<!-- 02：否认办卡信息 -->
+	<flow name="DeniedApplyInfo">
+		<schema name="DeniedApplyInfo">
+			<pk_columms name="uuid:0"/>
+		</schema>
+		<charset name="GBK"/>
+		<title info="唯一码*,通报行*,贷前/贷后*,姓名*,证件类型*,证件号码*,开户时间,否认人当前联系电话,提出否认时间*,核实状态*,备注" delimiter="," need_check="true"/>
+		<gap_count name="0"/>
+		<pk_need_check name="true"/>
+		<validate_file name="rule/validate_DeniedApplyInfo.xml"/>
+	</flow>
+	<!-- 03：申请信息（第三方） -->
+	<flow name="OtherPersonApplyInfo">
+		<schema name="OtherPersonApplyInfo">
+			<pk_columms name="uuid:0"/>
+		</schema>
+		<charset name="GBK"/>
+		<title info="唯一码*,通报行*,贷前/贷后*,来源*,欺诈类型*,信息核实状态*,姓名*,证件类型*,证件号码*,证件号码虚假度,判断依据,手机,手机虚假度,单位名称,单位名称虚假度,单位地址,单位地址虚假度,单位电话,单位电话虚假度,家庭地址,家庭地址虚假度,家庭电话,家庭电话虚假度,申请日期,确认日期,备注" delimiter="," need_check="true"/>
+		<gap_count name="0"/>
+		<pk_need_check name="true"/>
+		<validate_file name="rule/validate_OtherPersonApplyInfo.xml"/>
+	</flow>
+	<!-- 04：申请信息（本人） -->
+	<flow name="SelfApplyInfo">
+		<schema name="SelfApplyInfo">
+			<pk_columms name="uuid:0"/>
+		</schema>
+		<charset name="GBK"/>
+		<title info="唯一码*,通报行*,贷前/贷后*,来源*,欺诈类型*,信息核实状态*,姓名*,证件类型*,证件号码*,证件号码虚假度,判断依据,手机,手机虚假度,单位名称,单位名称虚假度,单位地址,单位地址虚假度,单位电话,单位电话虚假度,家庭地址,家庭地址虚假度,家庭电话,家庭电话虚假度,申请日期,确认日期,备注" delimiter="," need_check="true"/>
+		<gap_count name="0"/>
+		<pk_need_check name="true"/>
+		<validate_file name="rule/validate_SelfApplyInfo.xml"/>
+	</flow>
+	<!-- 05：营销员 -->
+	<flow name="SalesmanInfo">
+		<schema name="SalesmanInfo">
+			<pk_columms name="uuid:0"/>
+		</schema>
+		<charset name="GBK"/>
+		<title info="唯一码*,通报行*,贷前/贷后*,信息核实状态*,欺诈类型*,营销员姓名*,证件类型*,证件号码*,确认日期,备注" delimiter="," need_check="true"/>
+		<gap_count name="0"/>
+		<pk_need_check name="true"/>
+		<validate_file name="rule/validate_SalesmanInfo.xml"/>
+	</flow>
+	<!-- 06：贷后案件信息 -->
+	<flow name="AfterCaseInfo">
+		<schema name="AfterCaseInfo">
+			<pk_columms name="uuid:0"/>
+		</schema>
+		<charset name="GBK"/>
+		<title info="唯一码*,通报行*,姓名*,证件类型*,证件号码*,欺诈类型,是否怀疑道德风险,确认日期,备注" delimiter="," need_check="true"/>
+		<gap_count name="0"/>
+		<pk_need_check name="true"/>
+		<validate_file name="rule/validate_AfterCaseInfo.xml"/>
+	</flow>
+	<!-- 07：套现持卡人信息 -->
+	<flow name="CashCardholderInfo">
+		<schema name="CashCardholderInfo">
+			<pk_columms name="uuid:0"/>
+		</schema>
+		<charset name="GBK"/>
+		<title info="唯一码*,通报行*,信息核实状态*,姓名*,证件类型*,证件号码*,信用额度,涉案金额,套现涉及商户名称,套现涉及商户代码,单位名称,单位电话,手机,确认日期,备注" delimiter="," need_check="true"/>
+		<gap_count name="0"/>
+		<pk_need_check name="true"/>
+		<validate_file name="rule/validate_CashCardholderInfo.xml"/>
+	</flow>
+	<!-- 08：套现商户信息 -->
+	<flow name="CashTenantInfo">
+		<schema name="CashTenantInfo">
+			<pk_columms name="uuid:0"/>
+		</schema>
+		<charset name="GBK"/>
+		<title info="唯一码*,通报行*,信息核实状态*,商户名称*,商户类别(MCC),商户装机地址/互联网址(URL),商户代码（银联）,终端号码,商户所在城市,收单行,确认日期,备注" delimiter="," need_check="true"/>
+		<gap_count name="0"/>
+		<pk_need_check name="true"/>
+		<validate_file name="rule/validate_CashTenantInfo.xml"/>
+	</flow>
+	<!-- 09：批量上传文件信息，这个处理流程可能和其它六个可能有差别 -->
+	<flow name="BatchUploadInfo">
+		<schema name="BatchUploadInfo">
+			<pk_columms name="uuid:0"/>
+		</schema>
+		<charset name="GBK"/>
+		<title info="唯一码*,姓名,证件类型,证件号码,手机,单位名称,单位地址,单位电话,家庭地址,家庭电话,申请日期" delimiter="," need_check="true"/>
+		<gap_count name="0"/>
+		<pk_need_check name="true"/>
+		<validate_file name="rule/validate_BatchUploadInfo.xml"/>
+	</flow>
+</dbload>

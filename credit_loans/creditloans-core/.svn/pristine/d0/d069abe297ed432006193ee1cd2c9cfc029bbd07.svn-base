@@ -1,0 +1,13 @@
+package cn.creditloans.core.dao.af;
+
+import cn.creditloans.core.dao.share.AbstractEntityDao;
+import cn.creditloans.core.entity.af.BaseVariableTransaction;
+
+/**
+ * 对af_base_variable_transaction的DAO，通用的方法进行了继承
+ * @author Ash
+ *
+ */
+public interface BaseVariableTransactionDao extends AbstractEntityDao<BaseVariableTransaction> {
+
+}

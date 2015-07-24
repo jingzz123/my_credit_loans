@@ -1,0 +1,589 @@
+<%@ page language="java" contentType="text/html; charset=utf-8"  pageEncoding="utf-8"%>
+<%@ include  file="./../../common/header.jsp"%> 
+<script type="text/javascript">
+
+$().ready(function() {
+	$("#upload_templet").hide();
+	$("#vehicleInfoForm").validate({
+	    onkeyup: false,
+		rules: {
+			manufacturerId:{
+				min:1
+			},
+			vin:{
+				required: true,
+				isCapitalEnAndNum:true,
+				rangelength:[17,17],
+				remote:{
+					url:"${pageContext.request.contextPath}/ev/vehicle/checkVin",
+					type: "post",
+				    dataType: "json",
+				    data: {
+				    	vin: function() {
+				            return $("#vin").val();
+				        },
+				        oldVin:function(){
+				        	return $("#oldVin").val();
+				        }
+				    }
+				}
+			},
+			plateNo:{
+				required: true,
+				isPlateNo:true
+			},
+			brand:{
+				required: true,
+				rangelength:[2,32]
+			},
+			model:{
+				required: true,
+				rangelength:[2,32]
+			},
+			purpose:{
+				required: true,
+				rangelength:[2,32]
+			},
+			color:{
+				required: true,
+				rangelength:[1,16]
+			},
+			motorNo:{
+				required: true,
+				isEnAndNum:true,
+				rangelength:[1,32]
+			},
+			licenseNo:{
+				required: true,
+				isEnAndNum:true,
+				rangelength:[1,32]
+			},
+			licenseOffice:{
+				required:true,
+				rangelength:[1,64]
+			},
+			licenseDate:{
+				required:true
+			},
+			/* batVoltage:{
+				required: true,
+				isFloat:true,
+				isFloatGtZero:true,
+				rangelength:[1,10]
+			},			
+			batCapacity:{
+				required: true,
+				isFloat:true,
+				isFloatGtZero:true,
+				rangelength:[1,10]
+			},
+			terminalVendor:{
+				required:true,
+				rangelength:[1,32]
+			},
+			terminalModel:{
+				required:true,
+				rangelength:[1,16]
+			},
+			hardwareVersion:{
+				required: true,
+				rangelength:[1,16]
+			},
+			softwareVersion:{
+				required: true,
+				rangelength:[1,16]
+			}, */
+			busLineId:{
+				min:1
+			}
+		},
+		messages:{
+			manufacturerId:{
+				min:"请选择车辆生产厂家"
+			},
+			vin:{
+				required: "请输入车架号",
+				isCapitalEnAndNum:"车架号只能由大写英文字母和数字组成",
+				rangelength:"车架号长度为17位",
+				remote:"该车架号已存在"
+			},
+			plateNo:{
+				required: "请输入车牌号",
+				isPlateNo:"车牌号格式错误"
+			},
+			brand:{
+				required: "请输入厂牌",
+				rangelength:"厂牌长度为2~32位字符"
+			},
+			model:{
+				required: "请输入车辆型号",
+				rangelength:"车辆型号长度为2~32位字符"
+			},
+			purpose:{
+				required: "请输入车辆用途",
+				rangelength:"车辆用途长度为2~32位字符"
+			},
+			color:{
+				required: "请输入车辆颜色",
+				rangelength:"车辆颜色长度为1~16位字符"
+			},
+			motorNo:{
+				required: "请输入发动机号",
+				isCapitalEnAndNum:"发动机号只能由大写英文字母和数字组成",
+				rangelength:"发动机号长度为1~32位字符"
+			},
+			licenseNo:{
+				required: "请输入行驶证号",
+				isEnAndNum:"行驶证号只能由英文字母和数字组成",
+				rangelength:"行驶证号长度为1~32位字符"
+			},
+			licenseOffice:{
+				required:"请输入发证机关",
+				rangelength:"发证机关长度为1~64位字符"
+			},
+			licenseDate:{
+				required:"请输入发证日期"
+			},
+			/* batVoltage:{
+				required: "请输入电池电压",
+				isFloat:"电池电压格式错误",
+				isFloatGtZero:"电池电压应大于0",
+				rangelength:"电池电压长度为1~10位字符"
+			},			
+			batCapacity:{
+				required: "请输入电池容量",
+				isFloat:"电池容量格式错误",
+				isFloatGtZero:"电池容量应大于0",
+				rangelength:"电池容量长度为1~32位字符"
+			},
+			terminalVendor:{
+				required:"请输入车载终端制造商",
+				rangelength:"车载终端制造商长度为1~32位字符"
+			},
+			terminalModel:{
+				required:"请输入车载终端型号",
+				rangelength:"车载终端型号长度为1~16位字符"
+			},
+			hardwareVersion:{
+				required: "请输入车载终端硬件的版本信息号",
+				rangelength:"车载终端硬件的版本信息号长度为1~16位字符"
+			},
+			softwareVersion:{
+				required: "请输入车载终端软件的版本信息号",
+				rangelength:"车载终端软件的版本信息号长度为1~16位字符"
+			}, */
+			busLineId:{
+				min:"请选择公交线路"
+			}
+		},
+		errorPlacement: function(error, element) {
+			$( element ).closest( "form" ).find( "span[id='error_" + element.attr( "name" ) + "']" ).append( error );
+		},
+		submitHandler:function(){
+		 	var vehicleInfoJson = $('#vehicleInfoForm').serializeObject();
+			delete vehicleInfoJson.templet;
+			jQuery.ajax({
+				type: "post",
+			    url: "${pageContext.request.contextPath}/ev/vehicle/doAdd",
+			    contentType: "application/json",
+			    data: JSON.stringify(vehicleInfoJson),
+			    success: function (vehicleId) {
+			    	if(vehicleId>0){
+				        alert("添加车辆成功！");
+			    	}else{
+			    		alert("添加车辆失败！");
+			    		
+			    	}
+			    	window.location.href = "${pageContext.request.contextPath}/ev/vehicle/showList";
+			    },
+			    error: function () {
+			        alert("save vehicle error");
+			    }	
+			}); 
+		}
+	});
+
+});
+
+function goback(){
+	window.location.href = "${pageContext.request.contextPath}/ev/vehicle/showList";
+}
+
+//文件上传
+function fileUpload(){
+	var file = $("#templateName").val();
+	if(file == '' || file == null) {
+		$("#error_templateName").text("文件不能为空");
+	} 
+	 var index = file.lastIndexOf(".");
+	 var ext = file.substring(index + 1, file.length);
+	 if("xls" == ext || "xlsx" == ext){
+		 $("#templateName").val(file);
+		 $.ajaxFileUpload({  
+		        url : '${pageContext.request.contextPath}/file/upload/fileUpload',  
+		        secureuri : false,//安全协议  
+		        fileElementId:'templateName',//id  
+		        type : 'POST',  
+		        dataType : 'json',    
+		        error:function(data,status,e) {  
+		            alert('上传文件失败!');  
+		        },  
+		        success : function(json) {  
+	 				
+		        }  
+		    });   
+	 }else{
+		 $("#templateName").val("");
+		 $("#error_templateName").text("文件类型不正确");
+	 } 
+}
+
+function clearError(){
+	$("#error_templateName").text("");
+}
+
+function showUpload(val){
+	if(val==0){
+		$("#upload_templet").hide();		
+	}else{
+		$("#upload_templet").show();
+	}
+}
+
+
+$("#add").click(function(){
+	if($("#sel_all_area option:selected").length > 0)  {  
+　　　　　　　　$("#sel_all_area option:selected").each(function(){  
+　　　　           $("#sel_selected_areas").append("<option value='"+$(this).val()+"'>"+$(this).text()+"</option");  
+                   $(this).remove();　  
+               });  
+　　　　}  else {  
+　　　　　　　alert("请选择要添加的驾驶员！");  
+　　　　}  
+});  
+
+$("#delete").click(function(){  
+　　　　if($("#sel_selected_areas option:selected").length > 0)  {  
+　　　　    $("#sel_selected_areas option:selected").each(function(){  
+　　　　　　　　　$("#sel_all_area").append("<option value='"+$(this).val()+"'>"+$(this).text()+"</option");  
+　　　　　　　　　$(this).remove();　  
+　　　　　　})  
+　　　　} else {  
+　　　　　　alert("请选择要删除的驾驶员！");  
+　　　　}  
+}); 
+
+
+function refreshDriver(){
+	$.ajax({
+		 type:"POST",
+		 url:"${pageContext.request.contextPath}/enterprise/bus/line/refreshDriver",
+		 data:{"name":$("#driverName").val()},
+		 success:function(data){
+			 var htmlStr;
+			 var dataObj;
+			 for(var i = 0;i<data.length;i++){
+	             dataObj = data[i];
+	        	 htmlStr = htmlStr + "<option value='"+dataObj["id"]+"'>"+dataObj["driverName"]+"</option>"
+	         }
+	         $("#sel_all_area").empty();
+	         $("#sel_all_area").append(htmlStr);
+		 }
+	});
+}
+
+//获取站点信息
+function driverList(){
+	var driverInfo = [];
+	var driverSize = $("#sel_selected_areas option").length;
+	if(driverSize  > 0){
+		$($("#sel_selected_areas option")).each(function(){
+			driverInfo.push($(this).val());
+		});
+	}
+	return driverInfo.toString();
+}
+</script>
+	<!-- 二级菜单 begin -->
+		<div class="sidebar" id="sidebar">
+			<div class="sidebar-shortcuts" id="sidebar-shortcuts">
+				<div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
+					<div class="icon-text"> <i class="icon-truck"></i> <span> 车辆管理 </span></div>
+				</div>
+			</div>
+			<!-- #sidebar-shortcuts -->
+			<ul class="nav nav-list">
+				<li> <a href="${pageContext.request.contextPath}/ev/manufacturer/showList"> <i class="icon-home"></i> <span class="menu-text">生产厂家 </span> </a> </li>
+				<li> <a href="${pageContext.request.contextPath}/notFount"> <i class="icon-flag"></i> <span class="menu-text">车队信息 </span> </a> </li>
+				<li> <a href="${pageContext.request.contextPath}/ev/driver/showList"> <i class="icon-user"></i> <span class="menu-text">驾驶员信息 </span> </a> </li>
+				<li> <a href="${pageContext.request.contextPath}/enterprise/bus/stop/busStopList"> <i class="icon-map-marker"></i> <span class="menu-text">公交站点管理</span> </a> </li>
+				<li> <a href="${pageContext.request.contextPath}/enterprise/bus/line/busLineList"> <i class="icon-road"></i> <span class="menu-text">公交线路管理</span> </a> </li>
+				<li class="active"> <a href="${pageContext.request.contextPath}/ev/vehicle/showList"> <i class="icon-truck"></i> <span class="menu-text">车辆信息 </span> </a> </li>
+			</ul>
+			<!-- /.nav-list -->
+			<div class="sidebar-collapse" id="sidebar-collapse"> <i class="icon-double-angle-left" data-icon1="icon-double-angle-left" data-icon2="icon-double-angle-right"></i> </div>
+		</div>
+		<!-- 二级菜单 end -->
+	<div class="main-content">
+		<div class="breadcrumbs" id="breadcrumbs">
+			<ul class="breadcrumb">
+				<li><i class="icon-home home-icon"></i> <a href="#">首页</a></li>
+				<li><a href="#">车辆管理</a></li>
+				<li class="active">车辆信息</li>
+			</ul>
+			<!-- .breadcrumb -->
+		</div>
+		
+		<div class="page-content">
+			<div class="page-header">
+				<h1>
+					车辆信息<small> <i class="icon-double-angle-right"></i>
+						添加车辆信息
+					</small>
+				</h1>
+			</div><!-- /.page-header -->
+			
+			<div class="row">
+				<div class="col-xs-12">
+			    	<div class="col-md-12">
+				    	<form id="vehicleInfoForm" class="form-horizontal" >
+							  <div class="form-group">
+							    <label for="manufacturerId" class="col-sm-1 control-label">生产厂家</label>
+							    <div class="col-sm-3">							    
+							    	<select id="manufacturer_select" name="manufacturerId" style="width: 250px">
+							    		<option value="0">- 选择厂家 -</option>
+							    		<c:forEach items="${manufacturerDtoList}" var="manufacturer">
+							    		<option value="${manufacturer.id}">${manufacturer.name}</option>
+							    		</c:forEach>
+							    	</select>
+							    </div>
+							    <span id="error_manufacturerId" style="color: red" class="col-sm-2"></span>
+							  	<label for="vin" class="col-sm-1 control-label">车架号</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="vin" name="vin" class="form-control" placeholder="输入车架号" >
+							    </div>
+							    <span id="error_vin" style="color: red" class="col-sm-2"></span>
+							  </div>
+							  <div class="form-group">
+							    <label for="plateNo" class="col-sm-1 control-label">车牌号</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="plateNo" name="plateNo" class="form-control" placeholder="输入车牌号">
+							    </div>
+							    <span id="error_plateNo" style="color: red" class="col-sm-2"></span>
+							     <label for="brand" class="col-sm-1 control-label">厂牌</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="brand" name="brand" class="form-control" placeholder="输入厂牌">
+							    </div>
+							    <span id="error_brand" style="color: red" class="col-sm-2"></span>
+							  </div>
+							  <div class="form-group">
+							    <label for="model" class="col-sm-1 control-label">车辆型号</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="model" name="model" class="form-control" placeholder="输入车辆型号">
+							    </div>
+							    <span id="error_model" style="color: red" class="col-sm-2"></span>
+							    <label for="purpose" class="col-sm-1 control-label">用途</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="purpose" name="purpose" class="form-control" placeholder="输入用途">
+							    </div>
+							    <span id="error_purpose" style="color: red" class="col-sm-2"></span>
+							  </div>
+							  <div class="form-group">
+							    <label for="color" class="col-sm-1 control-label">颜色</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="color" name="color" class="form-control" placeholder="输入颜色">
+							    </div>
+							    <span id="error_color" style="color: red" class="col-sm-2"></span>
+							    <label for="motorNo" class="col-sm-1 control-label">发动机号</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="motorNo" name="motorNo" class="form-control" placeholder="输入发动机号">
+							    </div>
+							    <span id="error_motorNo" style="color: red" class="col-sm-2"></span>
+							  </div>
+							  <div class="form-group">
+							    <label for="licenseNo" class="col-sm-1 control-label">行驶证号</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="licenseNo" name="licenseNo" class="form-control" placeholder="输入行驶证号">
+							    </div>
+							    <span id="error_licenseNo" style="color: red" class="col-sm-2"></span>
+							    <label for="licenseOffice" class="col-sm-1 control-label">发证机关</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="licenseOffice" name="licenseOffice" class="form-control" placeholder="输入发证机关">
+							    </div>
+							    <span id="error_licenseOffice" style="color: red" class="col-sm-2"></span>
+							  </div>
+							  <div class="form-group">
+							    <label for="licenseDate" class="col-sm-1 control-label">发证日期</label>
+							    <div class="col-sm-3">
+							      	<div class="input-group date form_date col-md-3" style="padding:0px; margin:0px;width:255px;">
+					                    <input class="form-control" id="licenseDate" name="licenseDate" type="text" placeholder="发证日期" readonly="readonly">
+					                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar icon-calendar"></span></span>
+					                    <span class="input-group-addon"><span class="glyphicon glyphicon-remove icon-remove"></span></span>
+		                			</div>
+							    </div>
+							    <span id="error_licenseDate" style="color: red" class="col-sm-2"></span>
+							    <label for="powerType" class="col-sm-1 control-label">动力类型</label>
+							    <div class="col-sm-3">
+							      <input id="powerType_pure" name="powerType" type="radio" checked="checked" value="1"/> 纯电动 
+							      <input id="powerType_mix" name="powerType" type="radio" value="2"/> 混合动力
+							    </div>
+							    <span id="error_powerType" style="color: red" class="col-sm-2"></span>
+							  </div>
+							  <!-- 
+							  <div class="form-group">
+							    <label for="batVoltage" class="col-sm-4 control-label">电池电压(V)</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="batVoltage" name="batVoltage" class="form-control" placeholder="输入电池电压">
+							    </div>
+							    <span id="error_batVoltage" style="color: red"></span>
+							  </div>
+							  <div class="form-group">
+							    <label for="batCapacity" class="col-sm-4 control-label">电池容量(Ah)</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="batCapacity" name="batCapacity" class="form-control" placeholder="输入电池容量">
+							    </div>
+							    <span id="error_batCapacity" style="color: red"></span>
+							  </div>
+							  <div class="form-group">
+							    <label for="terminalVendor" class="col-sm-4 control-label">车载终端制造商</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="terminalVendor" name="terminalVendor" class="form-control" placeholder="输入车载终端制造商">
+							    </div>
+							    <span id="error_terminalVendor" style="color: red"></span>
+							  </div>
+							  <div class="form-group">
+							    <label for="terminalModel" class="col-sm-4 control-label">车载终端型号</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="terminalModel" name="terminalModel" class="form-control" placeholder="输入车载终端型号">
+							    </div>
+							    <span id="error_terminalModel" style="color: red"></span>
+							  </div>
+							  <div class="form-group">
+							    <label for="hardwareVersion" class="col-sm-4 control-label">车载终端硬件的版本信息号</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="hardwareVersion" name="hardwareVersion" class="form-control" placeholder="输入车载终端硬件的版本信息号">
+							    </div>
+							    <span id="error_hardwareVersion" style="color: red"></span>
+							  </div>
+							  <div class="form-group">
+							    <label for="softwareVersion" class="col-sm-4 control-label">车载终端软件的版本信息号</label>
+							    <div class="col-sm-3">
+							      <input type="text" id="softwareVersion" name="softwareVersion" class="form-control" placeholder="输入车载终端软件的版本信息号">
+							    </div>
+							    <span id="error_softwareVersion" style="color: red"></span>
+							  </div>
+							  <div class="form-group">
+							    <label for="terminalActive" class="col-sm-4 control-label">车载设备激活状态</label>
+							    <div class="col-sm-3">
+							      <input id="terminalActive_not" name="terminalActive" type="radio" checked="checked" value="0"/> 未激活 
+							      <input id="terminalActive_yes" name="terminalActive" type="radio" value="1"/> 激活
+							    </div>
+							    <span id="error_terminalActive" style="color: red"></span>
+							  </div>
+							  <div class="form-group">
+							    <label for="terminalOnline" class="col-sm-4 control-label">车载终端在线状态</label>
+							    <div class="col-sm-3">
+							      <input id="terminalOnline_off" name="terminalOnline" type="radio" checked="checked" value="0"/> 离线 
+							      <input id="terminalOnline_on" name="terminalOnline" type="radio" value="1"/> 在线
+							    </div>
+							    <span id="error_terminalOnline" style="color: red"></span>
+							  </div>
+							   -->
+							  <input type="hidden" name="terminalActive" value="0">
+							  <input type="hidden" name="terminalOnline" value="0">							  
+							  <input type="hidden" id="oldVin" name="oldVin">
+							  
+							  <div class="page-header"></div>
+							  
+						    <div class="row" style="height: 30px;padding-left: 20px;margin-top: 15px;">
+						        <div class="form-group">
+									&nbsp;&nbsp;&nbsp;<input type="text" style="width:200px;" id="driverName"  placeholder="驾驶员名称"/>
+									<input type="text" id="busLineName"  style="width:200px;"  placeholder="工号" value="" />
+								    <button type="button" style="height: 30px; width: 50px;color:#FFF;border:none; background-color:#42aaec;">
+									   <i class="icon-search"></i>
+									</button>
+								</div>
+							</div>
+							  <table class="table">
+								<tbody>
+							     	<tr>
+							        	<td align="right" style="width: 50%;border-top:0;">
+							             	<select id="sel_all_area"  multiple="multiple" size="10" style="width:100%;height:200px">
+							                   <option value="1">张三</option>
+							                   <option value="2">李四</option>
+							                   <option value="3">王五</option>
+							                   <option value="4">赵六</option>
+							                   <option value="5">王二麻</option>
+							                 </select>
+							         	 </td>
+							         	 <td style="width: 120px;border-top: 0; vertical-align: middle;">
+							         	 	<button type="button"  id="add" class="btn btn-primary icon-arrow-right">添加</button>
+							         	 	<button type="button" id="delete" class="btn btn-primary icon-arrow-left" style="margin-top: 20px;">移除</button>
+							         	 </td>
+							         	 <td style="width: 50%;border-top:0;">
+							                 <div style="margin-bottom: 2px;">
+							                 	  <select id="sel_selected_areas" name="driverIdList" multiple="multiple" size="10" style="width:100%;height: 200px;"></select>
+							                 </div>
+							                 <span id="error-selectDriver" style="color: red">asdfafd</span>
+							         	 </td>
+							     	</tr>
+						       	</tbody>
+						    </table>
+							  <div class="page-header"></div>
+							  <div class="form-group">
+							    <label for="busLineId" class="col-sm-4 control-label">公交线路</label>
+							    <div class="col-sm-3">							    
+							    	<select id="busLine_select" name="busLineId"">
+							    		<option value="0">- 选择公交线路 -</option>
+							    		<c:forEach items="${busLineDtoList}" var="busLine">
+							    		<option value="${busLine.id}">${busLine.busLineName}</option>
+							    		</c:forEach>
+							    	</select>
+							    </div>
+							    <span id="error_busLineId" style="color: red"></span>
+							  </div>
+							  <div class="page-header"></div>
+							  <div class="form-group">							  	
+							    <label for="" class="col-sm-4 control-label">报警模板</label>
+							    <div class="col-sm-4">
+							    	<input id="templet_default" name="templet" type="radio" checked="checked" value="0" onclick="showUpload(0)"/>默认 
+							      	<input id="templet_new" name="templet" type="radio" value="1" onclick="showUpload(1)"/> 自定义
+							      	&nbsp;&nbsp;&nbsp;
+							    	<a href="${pageContext.request.contextPath}/file/upload/downloadFile?fileName=template.xls" class="btn btn-info icon-download-alt">&nbsp;&nbsp;点击下载模板</a>
+							    </div>
+							  </div>
+							  <div class="form-group" id="upload_templet">
+							    <label for="" class="col-sm-4 control-label">上传模板</label>
+							    <div class="col-sm-4">
+							    	<input type="file" class="file" id="templateName"  class="file"  onclick="clearError()"  onchange="fileUpload()"></input>
+							        <span id="error_templateName" style="color: red"></span>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <div class="col-sm-offset-4">
+							      <input type="submit" class="btn btn-primary" value="保存"></input>
+							      <input type="button" class="btn btn-success" value="返回" onclick="goback()"></input>
+							    </div>
+							  </div>
+						</form>
+					</div>
+				</div>
+				 
+			</div> <!-- class:row -->
+			
+		</div><!-- /.page-content -->
+		
+	</div><!-- /.main-content --> 
+<script type="text/javascript">
+    $('.form_date').datetimepicker({
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		minView: 2,
+		forceParse: 0
+    });
+</script>
+<%@ include  file="./../../common/footer.jsp"%>

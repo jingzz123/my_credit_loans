@@ -1,0 +1,363 @@
+package cn.creditloans.core.service.impl.enterprise;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.time.DateFormatUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import cn.creditloans.core.cache.redis.HomeAddressCache;
+import cn.creditloans.core.cache.redis.HomeTelCache;
+import cn.creditloans.core.cache.redis.IdNumberCache;
+import cn.creditloans.core.cache.redis.MobileCache;
+import cn.creditloans.core.cache.redis.NameCache;
+import cn.creditloans.core.cache.redis.WorkAddressCache;
+import cn.creditloans.core.cache.redis.WorkNameCache;
+import cn.creditloans.core.cache.redis.WorkTelCache;
+import cn.creditloans.core.dao.BlackInfoDao;
+import cn.creditloans.core.dao.ContactDao;
+import cn.creditloans.core.dao.EnterpriseDao;
+import cn.creditloans.core.dao.UploadSummariesDao;
+import cn.creditloans.core.dto.enterprise.EnterpriseUserDTO;
+import cn.creditloans.core.dto.platform.BlackInfoDTO;
+import cn.creditloans.core.dto.platform.QueryCompareCondition;
+import cn.creditloans.core.dto.platform.QueryCompareResult;
+import cn.creditloans.core.dto.platform.QueryCompareResultItem;
+import cn.creditloans.core.entity.enterprise.BlackInfo;
+import cn.creditloans.core.entity.enterprise.Contact;
+import cn.creditloans.core.entity.enterprise.Enterprise;
+import cn.creditloans.core.entity.enterprise.UploadSummaries;
+import cn.creditloans.core.service.BasicCacheQueryService;
+import cn.creditloans.core.service.BasicQueryService;
+import cn.creditloans.core.service.BlackInfoService;
+import cn.creditloans.core.service.EnterpriseUserService;
+import cn.creditloans.tools.util.CreditloansPropertyPlaceholderConfigurer;
+import cn.creditloans.tools.util.DateUtils;
+
+@Service("blackInfoService")
+public class BlackInfoServiceImpl implements BlackInfoService {
+	
+	/**
+	 * 用作redis缓存的key的前缀
+	 */
+	private static final String KEY_PREFIX = "BLACK_TYPE_";
+	
+	@Autowired
+	private UploadSummariesDao uploadSummariesDao;
+	
+	@Autowired
+	private EnterpriseUserService enterpriseUserService;
+	
+	@Autowired
+	private BlackInfoDao blackInfoDao;
+	
+	@Autowired
+	private ContactDao contactDao;
+	
+	@Autowired
+	private BasicQueryService basicQueryService;
+	
+	@Autowired
+	private BasicCacheQueryService basicCacheQueryService;
+	
+	@Autowired
+	private EnterpriseDao enterpriseDao;
+	
+	// 保存黑名单信息
+	@Override
+	public int saveSingleBlackInfo(BlackInfoDTO blackInfoDTO, String token) {
+		EnterpriseUserDTO enterpriseUserDTO = enterpriseUserService.getEnterpriseUserDtoFromCache(token);
+		int userId = enterpriseUserDTO.getId();
+		int depId = enterpriseUserDTO.getDepId();
+		UploadSummaries uploadSummaries = new UploadSummaries();
+		uploadSummaries.setRecordCount(1);
+		uploadSummaries.setValidatedRecordCount(1);
+		uploadSummaries.setUserId(userId);
+		uploadSummaries.setDepId(depId);
+		uploadSummariesDao.saveUploadSummaries(uploadSummaries);
+		List<Contact> contactList = new ArrayList<Contact>();
+		List<String> contactNamesList = blackInfoDTO.getContactNames();
+		List<String> contactTellsList = blackInfoDTO.getContactTells();
+		List<String> contactWorksList = blackInfoDTO.getContactWorks();
+		List<Integer> contactRelationshipsList = blackInfoDTO.getContactRelationships();
+		BlackInfo blackInfo = new BlackInfo();
+		BeanUtils.copyProperties(blackInfoDTO, blackInfo);
+		blackInfo.setUserId(userId);
+		blackInfo.setDepId(depId);
+		blackInfo.setBatchId(uploadSummaries.getId());
+		// 保存 
+		blackInfoDao.saveBlackInfo(blackInfo);
+		int blackInfoId = blackInfo.getId();
+		for (int i = 0; i < contactNamesList.size(); i++) {
+			String contactName = contactNamesList.get(i);
+			if (contactName != null && "".equals(contactName)) {
+				Contact contact = new Contact();
+				contact.setContactName(contactName);
+				if (i < contactTellsList.size()) {
+					String tell = contactTellsList.get(i);
+					if (tell != null && !"".equals(tell)) {
+						contact.setContactTell(tell);
+					}
+				}
+				if (i < contactWorksList.size()) {
+					String work = contactWorksList.get(i);
+					if (work != null && !"".equals(work)) {
+						contact.setContactTell(work);
+					}
+				}
+				if (i < contactRelationshipsList.size()) {
+					int relationships = contactRelationshipsList.get(i);
+					if (relationships != 0) {
+						contact.setContactRelationship(relationships);
+					}
+				}
+				contact.setBlackId(blackInfoId);
+				contactList.add(contact);
+			}
+			if (contactList.size() > 0) {
+				contactDao.batchSaveContact(contactList);
+			}
+		}
+		if (CreditloansPropertyPlaceholderConfigurer.getContextProperty("saveincache").equals("0")) {
+			addToCache(blackInfo);
+		}
+		return blackInfoId;
+	}
+
+	// 查询比对
+	@Override
+	public QueryCompareResult queryBlackInfo(QueryCompareCondition queryCompareConditionDTO, String token) {
+		// 返回结果
+		QueryCompareResult queryCompareResult = new QueryCompareResult();
+		List<QueryCompareResultItem> queryCompareResultItemList;
+		if (CreditloansPropertyPlaceholderConfigurer.getContextProperty("saveincache").equals("0")) {
+			// 从缓存查
+			queryCompareResultItemList = queryBlackInfoFromCache(queryCompareConditionDTO, token);
+		} else {
+			// 查库
+			queryCompareResultItemList = queryBlaclInfoFromDB(queryCompareConditionDTO, token);
+		}
+		queryCompareResult.setQueryCompareResultItemList(queryCompareResultItemList);
+		return queryCompareResult;
+	}
+	
+	// 查询比对 联合查询
+	@Override
+	public QueryCompareResultItem jointQueryBlackInfo(QueryCompareCondition queryCompareConditionDTO, String token) {
+		// 查询的时间条件
+		Map<Integer, Date> dateConditionMap = getDateCondition();
+		// 查询的银行id list条件
+		List<Integer> bankIdCondition = getBankCondition(queryCompareConditionDTO.getDepCondition(), token);
+		// 返回结果
+		QueryCompareResultItem queryCompareResultItem;
+		if (CreditloansPropertyPlaceholderConfigurer.getContextProperty("saveincache").equals("0")) {
+			// 从缓存查
+			queryCompareResultItem = basicCacheQueryService.jointQueryBlackInfo(queryCompareConditionDTO, dateConditionMap, bankIdCondition);
+		} else {
+			// 查库
+			queryCompareResultItem = basicQueryService.jointQueryBlackInfo(queryCompareConditionDTO, dateConditionMap, bankIdCondition);
+		}
+		return queryCompareResultItem;
+	}
+	
+	// 从缓存中查询
+	private List<QueryCompareResultItem> queryBlackInfoFromCache(QueryCompareCondition queryCompareConditionDTO, String token) {
+		List<QueryCompareResultItem> queryCompareResultItemList = new ArrayList<QueryCompareResultItem>();
+		// 获取查询条件
+		String name = queryCompareConditionDTO.getName(); // 姓名
+		String idNumber = queryCompareConditionDTO.getIdNumber(); // 身份证号
+		String phone = queryCompareConditionDTO.getMobile(); // 手机
+		String tel = queryCompareConditionDTO.getTell(); // 固定电话
+		String address = queryCompareConditionDTO.getAddress(); // 地址
+		String companyName = queryCompareConditionDTO.getWorkName(); // 单位名称
+		int isFuzzy = queryCompareConditionDTO.getIsFuzzy();
+		// 查询的时间条件
+		Map<Integer, Date> dateConditionMap = getDateCondition();
+		// 查询的银行id list条件
+		List<Integer> bankIdCondition = getBankCondition(queryCompareConditionDTO.getDepCondition(), token);
+		// 姓名比较
+		if (name != null && !"".equals(name)) {
+			queryCompareResultItemList.add(basicCacheQueryService.queryName(name, dateConditionMap, bankIdCondition));
+		}
+		// 证件号码比较
+		if (idNumber != null && !"".equals(idNumber)) {
+			queryCompareResultItemList.add(basicCacheQueryService.queryIdNumber(idNumber, dateConditionMap, bankIdCondition));
+		}
+		// 手机比较
+		if (phone != null && !"".equals(phone)) {
+			queryCompareResultItemList.add(basicCacheQueryService.queryMobile(phone, dateConditionMap, bankIdCondition));
+		}
+		// 固定电话比较
+		if (tel != null && !"".equals(tel)) {
+			queryCompareResultItemList.add(basicCacheQueryService.queryTell(tel, dateConditionMap, bankIdCondition));
+		}
+		// 地址比较
+		if (address != null && !"".equals(address)) {
+			//  FIXME 单位地址标准化
+			//String standardAddress = AddressFuzzyTool.formatAddr(address);
+			queryCompareResultItemList.add(basicCacheQueryService.queryAddress(address, dateConditionMap, bankIdCondition));
+		}
+		// 单位名称比较
+		if (companyName != null && !"".equals(companyName)) {
+			// 单位名称标准化
+			//String standardWorkName = CorpFuzzyTool.prepareCorpName(companyName);
+			queryCompareResultItemList.add(basicCacheQueryService.queryWorkName(companyName, dateConditionMap, bankIdCondition));
+		}
+		return queryCompareResultItemList;
+	}
+	
+	// 从数据库中查询
+	private List<QueryCompareResultItem> queryBlaclInfoFromDB(QueryCompareCondition queryCompareConditionDTO, String token) {
+		List<QueryCompareResultItem> queryCompareResultItemList = new ArrayList<QueryCompareResultItem>();
+		// 获取查询条件
+		String name = queryCompareConditionDTO.getName(); // 姓名
+		String idNumber = queryCompareConditionDTO.getIdNumber(); // 身份证号
+		String phone = queryCompareConditionDTO.getMobile(); // 手机
+		String tel = queryCompareConditionDTO.getTell(); // 固定电话
+		String address = queryCompareConditionDTO.getAddress(); // 地址
+		String companyName = queryCompareConditionDTO.getWorkName(); // 单位名称
+		int isFuzzy = queryCompareConditionDTO.getIsFuzzy();
+		// 查询的时间条件
+		Map<Integer, Date> dateConditionMap = getDateCondition();
+		// 查询的银行id list条件
+		List<Integer> bankIdCondition = getBankCondition(queryCompareConditionDTO.getDepCondition(), token);
+		// 姓名比较
+		if (name != null && !"".equals(name)) {
+			queryCompareResultItemList.add(basicQueryService.queryName(name, dateConditionMap, bankIdCondition));
+		}
+		// 证件号码比较
+		if (idNumber != null && !"".equals(idNumber)) {
+			queryCompareResultItemList.add(basicQueryService.queryIdNumber(idNumber, dateConditionMap, bankIdCondition));
+		}
+		// 手机比较
+		if (phone != null && !"".equals(phone)) {
+			queryCompareResultItemList.add(basicQueryService.queryMobile(phone, dateConditionMap, bankIdCondition));
+		}
+		// 固定电话比较
+		if (tel != null && !"".equals(tel)) {
+			queryCompareResultItemList.add(basicQueryService.queryTell(tel, dateConditionMap, bankIdCondition));
+		}
+		// 地址比较
+		if (address != null && !"".equals(address)) {
+			//  FIXME 单位地址标准化   以后模糊匹配要改
+			//String standardAddress = AddressFuzzyTool.formatAddr(address);
+			queryCompareResultItemList.add(basicQueryService.queryAddress(address, dateConditionMap, bankIdCondition));
+		}
+		// 单位名称比较
+		if (companyName != null && !"".equals(companyName)) {
+			// 单位名称标准化
+			//String standardWorkName = CorpFuzzyTool.prepareCorpName(companyName);
+			queryCompareResultItemList.add(basicQueryService.queryWorkName(companyName, dateConditionMap, bankIdCondition));
+		}
+		return queryCompareResultItemList;
+	}
+	
+	protected Map<Integer, Date> getDateCondition() {
+		Date currentDate = Calendar.getInstance().getTime();
+		
+		// 10天前
+		Date date10 = DateUtils.calcBeforeDateByDay(currentDate, 10);
+		// 30天前
+		Date date30 = DateUtils.calcBeforeDateByDay(currentDate, 30);
+		// 90天前
+		Date date90 = DateUtils.calcBeforeDateByDay(currentDate, 90);
+		// 365天前
+		Date date365 = DateUtils.calcBeforeDateByDay(currentDate, 365);
+		
+		// 结果
+		Map<Integer, Date> dateConditionMap = new HashMap<Integer, Date>();
+		dateConditionMap.put(0, date10);
+		dateConditionMap.put(1, date30);
+		dateConditionMap.put(2, date90);
+		dateConditionMap.put(3, date365);
+		
+		return dateConditionMap;
+	}
+	
+	/**
+	 * @param backIdCondition
+	 * 0: 所有银行
+	 * 1: 不含本行
+	 * 2: 只本行
+	 * @return
+	 */
+	protected List<Integer> getBankCondition(int bankIdCondition, String token) {
+		EnterpriseUserDTO userDto = enterpriseUserService.getEnterpriseUserDtoFromCache(token);
+		int depId = userDto.getDepId();
+		List<Enterprise> enterpriseList = enterpriseDao.selectEnterpriseList();
+		List<Integer> listId = new ArrayList<Integer>();
+		for (Enterprise enterprise : enterpriseList) {
+			int enterpriseId = enterprise.getId();
+			if (bankIdCondition == 1) { // 所有银行
+				listId.add(enterpriseId);
+			} else if (bankIdCondition == 2) { // 只本行
+				listId.add(depId);
+				return listId;
+			} else if (bankIdCondition == 3 && enterpriseId != depId) { // 不包含本行
+				listId.add(enterpriseId);
+			}
+		}
+		return listId;
+	}
+	
+	/**
+	 * 将黑名单存入缓存
+	 * @param blackInfo
+	 */
+	private void addToCache(BlackInfo blackInfo) {
+		int id = blackInfo.getId();
+		int bankId = blackInfo.getDepId();
+		String strId = String.valueOf(id);
+		String producedOn = DateFormatUtils.format(blackInfo.getConfirmedDate(), "yyyy-MM-dd");
+		
+		// 处理redis中的值
+		StringBuffer sb = new StringBuffer();
+		sb.append(id).append(",").append(bankId).append(",").append(producedOn);
+		String info = sb.toString();
+		
+		// 姓名
+		String name = blackInfo.getName();
+		// 证件号码
+		String idNumber = blackInfo.getIdNumber();
+		// 手机
+		String mobile = blackInfo.getMobile();
+		// 单位名称
+		// FIXME 以后模糊匹配要改
+		//String standardWorkName = blackInfo.getStandardWorkName();
+		String standardWorkName = blackInfo.getWorkName();
+		// 单位地址
+		//String standardWorkAddress = blackInfo.getStandardWorkAddress();
+		String standardWorkAddress = blackInfo.getWorkAddress();
+		// 单位电话
+		String workTel = blackInfo.getWorkTell();
+		// 家庭地址
+		// String standardHomeAddress = blackInfo.getStandardFamilyAddress();
+		String standardHomeAddress = blackInfo.getHomeAddress();
+		// 家庭电话
+		String homeTel = blackInfo.getHomeTell();
+		
+		// 姓名
+		NameCache.getInstance().hset(KEY_PREFIX + name, strId, info);
+		// 证件号码
+		IdNumberCache.getInstance().hset(KEY_PREFIX + idNumber, strId, info);
+		// 手机
+		MobileCache.getInstance().hset(KEY_PREFIX + mobile, strId, info);
+		// 单位名称
+		WorkNameCache.getInstance().hset(KEY_PREFIX + standardWorkName, strId, info);
+		// 单位地址
+		WorkAddressCache.getInstance().hset(KEY_PREFIX + standardWorkAddress, strId, info);
+		// 单位电话
+		WorkTelCache.getInstance().hset(KEY_PREFIX + workTel, strId, info);
+		// 家庭地址
+		HomeAddressCache.getInstance().hset(KEY_PREFIX + standardHomeAddress, strId, info);
+		// 家庭电话
+		HomeTelCache.getInstance().hset(KEY_PREFIX + homeTel, strId, info);
+	}
+
+}

@@ -1,0 +1,44 @@
+package cn.creditloans.core.service;
+
+import cn.creditloans.core.dto.af.MetadataSchemaDTO;
+import cn.creditloans.core.dto.platform.PlatformUserDTO;
+import cn.creditloans.tools.page.PageModel;
+
+public interface MetadataSchemaService {
+	
+	/**
+	 * 分页展示schema信息
+	 * @param metadataSchemaDTO
+	 * @param currentPage
+	 * @param pageSize
+	 * @return
+	 */
+	PageModel<MetadataSchemaDTO> getMetadataSchemaPageList(MetadataSchemaDTO metadataSchemaDTO, int currentPage, int pageSize);
+	
+	/**
+	 * 保存schema
+	 * @param metadataSchemaDTO
+	 * @return
+	 */
+	int saveMetadataSchema(MetadataSchemaDTO metadataSchemaDTO);
+	
+	/**
+	 * 根据schemaId返回schema信息
+	 * @param schemaId
+	 * @return
+	 */
+	MetadataSchemaDTO getMetadataSchemaById(int schemaId);
+	
+	/**
+	 * 修改schema信息
+	 * @param metadataSchemaDTO
+	 */
+	void updateMetadataSchema(MetadataSchemaDTO metadataSchemaDTO);
+	
+	/**
+	 * 根据schemaId删除schema
+	 * @param schemaId
+	 */
+	void deleteMetadataSchema(int schemaId);
+	
+}

@@ -1,0 +1,57 @@
+package cn.creditloans.core.dao.af;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import cn.creditloans.core.dao.share.AbstractEntityDao;
+import cn.creditloans.core.entity.af.MetadataSchema;
+import cn.creditloans.tools.page.PageModel;
+
+/**
+ * 对af_metadata_schema的DAO，通用的方法进行了继承
+ * @author Ash
+ *
+ */
+public interface MetadataSchemaDao extends AbstractEntityDao<MetadataSchema> {
+	/**
+	 * 单个插入metadataSchema
+	 */
+	public void insert(MetadataSchema metadataSchema);
+	
+	/**
+	 * 单个修改metadataSchema
+	 */
+	public void update(MetadataSchema metadataSchema);
+	
+	/**
+	 * 根据ID删除单个metadataSchema
+	 */
+	public void delete(int id);
+	
+	/**
+	 * 获取单个metadataSchema实体信息
+	 * @param id
+	 * @return
+	 */
+	public MetadataSchema select(int id);
+
+	/**
+	 * 获取所有metadataSchema的实体
+	 * @return
+	 */
+	public List<MetadataSchema> selectAllInfos();
+	
+	/**
+	 * 分页查询metadataSchema
+	 * @param pm
+	 * @return
+	 */
+	public List<MetadataSchema> selectPageList(@Param("metadataSchema") MetadataSchema metadataSchema, @Param("pm") PageModel<?> pm);
+	
+	/**
+	 * 得到所有metadataSchema的数量
+	 * @return
+	 */
+	public int selectPageCount(MetadataSchema metadataSchema);
+}

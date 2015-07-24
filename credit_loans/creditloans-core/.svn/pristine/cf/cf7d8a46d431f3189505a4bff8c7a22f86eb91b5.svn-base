@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<mappers>
+		<mapper resource="mybatis/P2PGrjbxxDaoMapper.xml" />
+		<mapper resource="mybatis/P2PDksqxxDaoMapper.xml" />
+		<mapper resource="mybatis/P2PDkjbxxDaoMapper.xml" />
+		<mapper resource="mybatis/P2PDbxxDaoMapper.xml" />
+		<mapper resource="mybatis/P2PTzrxxDaoMapper.xml" />
+		<mapper resource="mybatis/P2PTsjyxxDaoMapper.xml" />
+		<mapper resource="mybatis/PlatformUserDaoMapper.xml" />
+		<mapper resource="mybatis/PlatformDepartmentDaoMapper.xml" />
+		<mapper resource="mybatis/PlatformMenuDaoMapper.xml" />
+		<mapper resource="mybatis/PlatformRoleDaoMapper.xml" />
+		<mapper resource="mybatis/EnterpriseDaoMapper.xml" />
+		<mapper resource="mybatis/EnterpriseMenuDaoMapper.xml" />
+		<mapper resource="mybatis/EnterpriseRoleDaoMapper.xml" />
+		<mapper resource="mybatis/EnterpriseTypeDaoMapper.xml" />
+		<mapper resource="mybatis/EnterpriseUserDaoMapper.xml" />
+	</mappers>
+</configuration>

@@ -1,0 +1,137 @@
+<%@ page language="java" contentType="text/html; charset=utf-8"  pageEncoding="utf-8"%>
+<%@ include  file="./../../common/header.jsp"%>
+	<!-- 二级菜单 begin -->
+		<div class="sidebar" id="sidebar">
+			<div class="sidebar-shortcuts" id="sidebar-shortcuts">
+				<div class="sidebar-shortcuts-large" id="sidebar-shortcuts-large">
+					<div class="icon-text"> <i class="icon-group"></i> <span> 车辆管理 </span></div>
+				</div>
+			</div>
+			<!-- #sidebar-shortcuts -->
+			<ul class="nav nav-list">
+				<li class="active"> <a href="${pageContext.request.contextPath}/charger/station/showList"> <i class="icon-home"></i> <span class="menu-text">充电站信息 </span> </a> </li>
+			</ul>
+			<!-- /.nav-list -->
+			<div class="sidebar-collapse" id="sidebar-collapse"> <i class="icon-double-angle-left" data-icon1="icon-double-angle-left" data-icon2="icon-double-angle-right"></i> </div>
+		</div>
+		<!-- 二级菜单 end -->
+	<div class="main-content">
+		<div class="breadcrumbs" id="breadcrumbs">
+			<ul class="breadcrumb">
+				<li><i class="icon-home home-icon"></i> <a href="#">首页</a></li>
+				<li><a href="#">充电 管理</a></li>
+				<li class="active">充电桩信息添加</li>
+			</ul>
+			<!-- .breadcrumb -->
+		</div>
+		
+		<div class="page-content">
+			<div class="page-header">
+				<h1>
+					充电桩信息<small> <i class="icon-double-angle-right"></i>
+						设置所有充电桩信息
+					</small>
+				</h1>
+			</div><!-- /.page-header -->
+			<div class="row">
+				<div class="col-xs-12">
+			    	<div class="col-md-12">
+			    	    <form id="chargerForm" class="form-horizontal" >
+						   <div class="form-group">
+								<label for="name" class="col-sm-2 control-label">充电桩编号</label>
+								<div class="col-sm-4">
+									<input id="" name="chargerNo" type="text" class="form-control"
+										placeholder="...充电桩编号" value="${chargerInfoDto.chargerNo}" />
+								</div>
+								<label for="name" class="col-sm-2 control-label">充电桩序列号</label>
+								<div class="col-sm-4">
+									<input id="" name="chargerSn" type="text" class="form-control"
+										placeholder="...充电桩编号" value="${chargerInfoDto.chargerSn}"/>
+								</div>
+							</div>
+						   <div class="form-group">
+						       <label for="name" class="col-sm-2 control-label" >充电类型</label>
+						   	   <div class="col-sm-4">
+						   	   		<select class="form-control" name="type">
+						   	   			<option value="0">---请选择充电类型---</option>
+						   	   			<c:if test="${chargerInfoDto.type == 1}">
+						   	   				<option value="1" selected="selected">直流</option>
+						   	   				<option value="2">交流</option>
+						   	   			</c:if>
+						   	   		    <c:if test="${chargerInfoDto.type == 2}">
+						   	   		    <option value="1">直流</option>
+						   	   				<option value="2" selected="selected">交流</option>
+						   	   			</c:if>
+									</select>
+						   	   </div>
+						   	   <label for="name" class="col-sm-2 control-label">充电桩型号</label>
+						   	   <div class="col-sm-4">
+						   	       <input id="" name="model" type="text" class="form-control" placeholder="...充电桩型号" value="${chargerInfoDto.model}"/>
+						   	   </div>
+						   </div>
+						   <div class="form-group">
+						       <label for="name" class="col-sm-2 control-label" >制造商</label>
+						   	   <div class="col-sm-4">
+						   	       <input id="" name="manufacturer" type="text" class="form-control" placeholder="...制造商" value="${chargerInfoDto.manufacturer}"/>
+						   	   </div>
+						   </div>
+							<div class="col-sm-offset-5" id="insert-input-group">
+								<input type="submit" class="btn btn-primary" value="保存" />&nbsp;&nbsp;&nbsp;&nbsp;
+								<a href="#" class="btn btn-success " onclick="goback()">返回</a>
+								<input type="hidden" id="stationId" name="stationId" value="${chargerInfoDto.stationId }"/>
+								<input type="hidden" name="id" value="${chargerInfoDto.id}"/>
+								<input type="hidden" name="hardwareVersion" value="${chargerInfoDto.hardwareVersion}"/>
+								<input type="hidden" name="softwareVersion" value="${chargerInfoDto.softwareVersion}"/>
+								<input type="hidden" name="state" value="${chargerInfoDto.state}"/>
+								<input type="hidden" name="online" value="${chargerInfoDto.online}"/>
+								<input type="hidden" name="active" value="${chargerInfoDto.active}"/>
+								<input type="hidden" name="enterpriseId" value="${chargerInfoDto.enterpriseId}"/>
+					       </div>
+						</form>
+			    	</div>
+			    </div>	
+			</div> <!-- class:row -->
+		</div><!-- /.page-content -->
+	</div><!-- /.main-content --> 
+<%@ include  file="./../../common/footer.jsp"%>
+<script type="text/javascript">
+	$(function(){
+		 $("#chargerForm").validate({  
+				rules: {
+					chargerNo:{
+						required:true
+					}
+				},
+				messages:{
+					chargerNo:{
+						required:"充电桩编号不能为空"
+					}
+				},
+				errorPlacement: function(error, element) {
+					error.appendTo(element.parent().siblings("span"));
+				},
+			 submitHandler: function(form) 
+			   {  
+			     $.ajax({
+			    	  type:"POST",
+			    	   url:"${pageContext.request.contextPath}/charger/info/doEdit",
+			    	   data:$("#chargerForm").serialize(),
+			    	   contentType:"json",
+			    	   success:function(msg){
+			    		   if(msg){
+			    			   alert("保存数据成功");
+			    			   goback();
+			    		   }else{
+			    			   alert("保存数据失败");
+			    		   }
+			    	   }
+			      });
+			   }  
+			 })	 
+	});
+
+	function goback(){
+		 window.location.href="${pageContext.request.contextPath}/charger/info/showList?stationId="+$("#stationId").val();
+	}
+	
+</script>

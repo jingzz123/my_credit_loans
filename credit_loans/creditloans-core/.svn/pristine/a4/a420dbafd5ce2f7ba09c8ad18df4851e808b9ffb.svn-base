@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.creditloans.core.dao.DbBdbrxxDao" >
+  <resultMap id="BaseResultMap" type="cn.creditloans.core.entity.db.DbBdbrxx" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="bdbrlx" property="bdbrlx" jdbcType="VARCHAR" />
+    <result column="bdbrmc" property="bdbrmc" jdbcType="VARCHAR" />
+    <result column="bdbrzjlx" property="bdbrzjlx" jdbcType="VARCHAR" />
+    <result column="bdbrzjhm" property="bdbrzjhm" jdbcType="VARCHAR" />
+    <result column="ztw" property="ztw" jdbcType="VARCHAR" />
+    <result column="dbhtxx_id" property="dbhtxxId" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="org_code" property="orgCode" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, bdbrlx, bdbrmc, bdbrzjlx, bdbrzjhm, ztw, dbhtxx_id, status, user_id, org_code, 
+    create_time, update_time
+  </sql>
+ 
+	
+	<select id="selectDbBdbrxxById" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from db_bdbrxx
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteDbBdbrxxById" parameterType="java.lang.Integer" >
+    delete from db_bdbrxx
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insertDbBdbrxx" parameterType="cn.creditloans.core.entity.db.DbBdbrxx" >
+ 	<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+		SELECT currval('db_bdbrxx_id_seq')
+	</selectKey>
+    insert into db_bdbrxx (bdbrlx, bdbrmc, 
+      bdbrzjlx, bdbrzjhm, ztw, 
+      dbhtxx_id, status, user_id, 
+      org_code, create_time, update_time
+      )
+    values ( #{bdbrlx,jdbcType=VARCHAR}, #{bdbrmc,jdbcType=VARCHAR}, 
+      #{bdbrzjlx,jdbcType=VARCHAR}, #{bdbrzjhm,jdbcType=VARCHAR}, #{ztw,jdbcType=VARCHAR}, 
+      #{dbhtxxId,jdbcType=INTEGER}, #{status,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, 
+      #{orgCode,jdbcType=VARCHAR}, now(), now()
+      )
+  </insert>
+
+  <update id="updateDbBdbrxx" parameterType="cn.creditloans.core.entity.db.DbBdbrxx" >
+    update db_bdbrxx
+    set bdbrlx = #{bdbrlx,jdbcType=VARCHAR},
+      bdbrmc = #{bdbrmc,jdbcType=VARCHAR},
+      bdbrzjlx = #{bdbrzjlx,jdbcType=VARCHAR},
+      bdbrzjhm = #{bdbrzjhm,jdbcType=VARCHAR},
+      ztw = #{ztw,jdbcType=VARCHAR},
+      dbhtxx_id = #{dbhtxxId,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      org_code = #{orgCode,jdbcType=VARCHAR},
+      update_time = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <select id="selectDbBdbrxxPageList" resultMap="BaseResultMap">
+ 		select 
+		<include refid="Base_Column_List" />
+		from db_bdbrxx
+		where org_code = #{dbBdbrxx.orgCode} and dbhtxx_id = #{dbBdbrxx.dbhtxxId}
+		<if test="dbBdbrxx.bdbrmc != null and '' != dbBdbrxx.bdbrmc">  
+			and bdbrmc like '%${dbBdbrxx.bdbrmc}%'
+		</if>
+		<if test="dbBdbrxx.bdbrzjhm != null and '' != dbBdbrxx.bdbrzjhm">  
+			and bdbrzjhm like '%${dbBdbrxx.bdbrzjhm}%'
+		</if>
+		order by create_time desc limit #{pm.pageSize} offset #{pm.startCount}
+	</select>
+	<select id="selectDbBdbrxxPageCount" parameterType="cn.creditloans.core.entity.db.DbBdbrxx" resultType="int">
+		select count(1) from db_bdbrxx where org_code = #{orgCode}  and dbhtxx_id = #{dbhtxxId}
+		<if test="bdbrmc != null and '' != bdbrmc">  
+			and bdbrmc like '%${bdbrmc}%'
+		</if>
+		<if test="bdbrzjhm != null and '' != bdbrzjhm">  
+			and bdbrzjhm like '%${bdbrzjhm}%'
+		</if>
+	</select>
+	
+	 <!-- 检查关联是否存在 -->
+    <select id="selectCountByDbhtxxId" resultType="int" parameterType="string">
+    	select count(1)  from db_bdbrxx where dbhtxx_id = #{dbhtxxId}
+    </select>
+</mapper>

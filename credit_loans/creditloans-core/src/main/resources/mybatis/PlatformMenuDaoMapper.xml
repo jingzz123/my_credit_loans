@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="cn.creditloans.core.dao.PlatformMenuDao">
+
+	<resultMap id="platformMenuResultMap" type="cn.creditloans.core.entity.platform.PlatformMenu">
+        <id property="id" column="id" />
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="fid" column="fid"/>
+        <result property="status" column="status"/>
+        <result property="url" column="url"/>
+        <result property="sequence" column="sequence"/>
+        <result property="icon" column="icon"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+    
+    <select id="selectPlatformMenuList" resultMap="platformMenuResultMap">
+    	select id, name, description, fid, status, url, sequence, icon, create_time, update_time from platform_menu
+    </select>
+    
+    <select id="selectPlatformMenuListByFid" resultMap="platformMenuResultMap" parameterType="int">
+    	select id, name, description, fid, status, url, sequence, icon, create_time, update_time from platform_menu
+    	where fid=#{fid}
+    </select>
+    
+    <select id="selectPlatformMenuById" resultMap="platformMenuResultMap" parameterType="int">
+    	select id, name, description, fid, status, url, sequence, icon, create_time, update_time from platform_menu
+    	where id=#{menuId}
+    </select>
+    
+    <select id="selectPlatformMenuListByIds" resultMap="platformMenuResultMap">
+        select id, name, description, fid, status, url, sequence, icon, create_time, update_time from platform_menu
+        where id in 
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		order by sequence
+    </select>
+    
+    <select id="selectPlatformMenuPageCount" resultType="int" parameterType="cn.creditloans.core.entity.platform.PlatformMenu">
+    	select count(1) from platform_menu where 1=1 	
+        <if test="name != null and '' != name">  
+			and name like '%${name}%' 
+		</if>
+		<if test="status != -1">  
+			and status = #{status}  
+		</if>
+    </select>
+    
+    <select id="selectPlatformMenuPageList" resultMap="platformMenuResultMap">
+        select id, name, description, fid, status, url, sequence, icon, create_time, update_time from platform_menu
+        where 1=1
+        <if test="menu.name != null and '' != menu.name">  
+			and name like '%${menu.name}%' 
+		</if>
+		<if test="menu.status != -1">  
+			and status = #{menu.status}  
+		</if>
+		order by create_time desc limit #{pm.pageSize} offset #{pm.startCount}
+    </select>
+    
+    <insert id="insertPlatformMenu" parameterType="cn.creditloans.core.entity.platform.PlatformMenu">
+		<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+			SELECT currval('platform_menu_id_seq')
+		</selectKey>
+	
+ 		insert into platform_menu (name, description, fid, status, url, sequence, icon, create_time, update_time)
+ 					values (#{name}, #{description}, #{fid}, #{status}, #{url}, #{sequence}, #{icon}, now(), now())
+	</insert>
+	
+	<update id="updatePlatformMenu"  parameterType="cn.creditloans.core.entity.platform.PlatformMenu">
+		update platform_menu set name=#{name}, description=#{description}, fid=#{fid}, status=#{status}, url=#{url}, sequence=#{sequence}, icon=#{icon}, update_time=now() where id = #{id}
+	</update>
+	
+    <delete id="deletePlatformMenuById" parameterType="int">
+    	delete from platform_menu where id = #{id} 
+    </delete>
+    
+</mapper>

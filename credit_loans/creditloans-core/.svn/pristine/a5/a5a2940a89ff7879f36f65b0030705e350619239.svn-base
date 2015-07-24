@@ -1,0 +1,80 @@
+package cn.creditloans.core.service.impl.db;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import cn.creditloans.core.dao.DbjbxxDao;
+import cn.creditloans.core.dto.db.DbjbxxDTO;
+import cn.creditloans.core.dto.p2p.P2PDkjbxxDTO;
+import cn.creditloans.core.entity.db.Dbjbxx;
+import cn.creditloans.core.entity.p2p.P2PDkjbxx;
+import cn.creditloans.core.service.DbjbxxService;
+import cn.creditloans.tools.page.PageModel;
+@Service("DbjbxxService")
+public class DbjbxxServiceImpl implements DbjbxxService {
+
+	@Autowired
+	DbjbxxDao dbjbxxDao;
+	
+	/**
+	 * 分页查询
+	 * @param dbjbxxDto
+	 * @param currentPage
+	 * @param pageSize
+	 * @return
+	 */
+	public PageModel<DbjbxxDTO> getDbjbxxPageList(DbjbxxDTO dbjbxxDto,
+			int currentPage, int pageSize) {
+		Dbjbxx dbjbxx = new Dbjbxx();
+		BeanUtils.copyProperties(dbjbxxDto, dbjbxx);
+		
+		PageModel<DbjbxxDTO> pm = new PageModel<DbjbxxDTO>();
+		pm.init(currentPage, pageSize);
+		
+		int count = dbjbxxDao.selectDbjbxxPageCount(dbjbxx);
+		List<Dbjbxx> dbjbxxList = dbjbxxDao.selectDbjbxxPageList(pm, dbjbxx);
+		List<DbjbxxDTO> dbjbxxDtoList = new ArrayList<DbjbxxDTO>();
+		for(Dbjbxx _dbjbxx : dbjbxxList){
+			DbjbxxDTO _dbjbxxDto = new DbjbxxDTO();
+			BeanUtils.copyProperties(_dbjbxx, _dbjbxxDto);
+			dbjbxxDtoList.add(_dbjbxxDto);
+		}
+		
+		pm.setTotal(count);
+		pm.setDatas(dbjbxxDtoList);
+		return pm;
+	}
+	
+	public DbjbxxDTO getDbjbxxById(int id) {
+		Dbjbxx dbjbxx = dbjbxxDao.selectDbjbxxById(id);
+		DbjbxxDTO dbjbxxDto = new DbjbxxDTO();
+		BeanUtils.copyProperties(dbjbxx, dbjbxxDto);
+		return dbjbxxDto;
+	}
+
+	public int addDbjbxx(DbjbxxDTO dbjbxxDto) {
+		Dbjbxx dbjbxx = new Dbjbxx();
+		BeanUtils.copyProperties(dbjbxxDto, dbjbxx);
+		dbjbxxDao.insertDbkjbxx(dbjbxx);
+		int dbjbxxId = dbjbxx.getId();
+		return dbjbxxId;
+	}
+
+	public void editDbjbxx(DbjbxxDTO dbjbxxDto) {
+		Dbjbxx Dbjbxx = new Dbjbxx();
+		BeanUtils.copyProperties(dbjbxxDto, Dbjbxx);
+		dbjbxxDao.updateDbjbxx(Dbjbxx);
+	}
+
+	public void deleteDbjbxxById(int id) {
+		dbjbxxDao.deleteDbjbxxById(id);
+	}
+
+	
+
+
+}

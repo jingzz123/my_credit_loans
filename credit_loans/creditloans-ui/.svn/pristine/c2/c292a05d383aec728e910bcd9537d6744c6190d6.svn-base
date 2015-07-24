@@ -1,0 +1,11 @@
+#enterprise user login time out(second)
+enterpriseuser_timeout=600
+#前台所有功能每页显示条数
+enterprise_page_show_count=10
+#enterpriseuser reset password
+enterpriseuser_reset_password=111111
+# if query with cache as above, so upload data should be save in cache at per time. 0 is save in cache, 1 is not save in cache;
+# so (pay attention to this):
+# when saveincache is 0, the query type must be cache, otherwise, the saveincache is 1, the query type is db.
+# in addition, when saveincache is 1, so the update opertion is no need to excute.
+saveincache=0

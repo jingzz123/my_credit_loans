@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="cn.creditloans.core.dao.BlackInfoDao">
+
+	<resultMap id="blackInfoResultMap" type="cn.creditloans.core.entity.enterprise.BlackInfo">
+        <id property="id" column="id" />
+        <result property="userId" column="user_id"/>
+        <result property="depId" column="dep_id"/>
+        <result property="name" column="name"/>
+        <result property="idNumber" column="id_number"/>
+        <result property="mobile" column="mobile"/>
+        <result property="married" column="married"/>
+        <result property="homeAddress" column="home_address"/>
+        <result property="homeTell" column="home_tell"/>
+        <result property="workName" column="work_name"/>
+        <result property="workAddress" column="work_address"/>
+        <result property="workTell" column="work_tell"/>
+        <result property="loanType" column="loan_type"/>
+        <result property="confirmedType" column="confirmed_type"/>
+        <result property="confirmedDetails" column="confirmed_details"/>
+        <result property="appliedOn" column="applied_on"/>
+        <result property="turnState" column="turn_state"/>
+        <result property="confirmedDate" column="confirmed_date"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="comments" column="comments"/>
+        <result property="batchId" column="batch_id"/>
+    </resultMap>
+    
+    <sql id="select_all_sql">
+    	select id, user_id, dep_id, name, id_number, mobile, married, home_address, home_tell, work_name, work_address, 
+    		workTell, work_tell, loan_type, confirmed_type, confirmed_details, applied_on, turn_state, confirmed_date,
+    		create_time, update_time, comments, org_code from black_info
+    </sql>
+    <!-- 单条保存 -->
+    <insert id="saveBlackInfo" parameterType="cn.creditloans.core.entity.enterprise.BlackInfo">
+    	<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+			SELECT currval('black_info_id_seq')
+		</selectKey>
+    	insert into black_info (user_id, dep_id, name, id_number, mobile, married, home_address, home_tell, work_name, 
+    		work_address, work_tell, loan_type, confirmed_type, confirmed_details, applied_on, turn_state, 
+    		confirmed_date, create_time, update_time, comments, org_code) 
+    		values 
+    		(#{userId}, #{depId}, #{name}, #{idNumber}, #{mobile}, #{married}, #{homeAddress}, #{homeTell}, #{workName}, 
+    		#{workAddress}, #{workTell}, #{loanType}, #{confirmedType}, #{confirmedDetails}, #{appliedOn}, 0, 
+    		#{confirmedDate}, now(), now(), #{comments}, #{orgCode})
+    </insert>
+    <!-- 根据姓名查询 -->
+    <select id="selectBlackInfoByName" resultMap="blackInfoResultMap">
+    	<include refid="select_all_sql"/>  where name = #{name}
+    </select>
+    <!-- 根据身份证查询 -->
+    <select id="selectBlackInfoByIdNumber" resultMap="blackInfoResultMap">
+    	<include refid="select_all_sql"/>  where id_number = #{idNumber}
+    </select>
+    <!-- 根据手机查询 -->
+    <select id="selectBlackInfoByMobile" resultMap="blackInfoResultMap">
+    	<include refid="select_all_sql"/>  where mobile = #{mobile}
+    </select>
+    <!-- 根据电话查询 -->
+    <select id="selectBlackInfoByTell" resultMap="blackInfoResultMap">
+    	<include refid="select_all_sql"/>  where home_tell = #{tell} or work_tell = #{tell}
+    </select>
+    <!-- 根据地址查询 -->
+    <select id="selectBlackInfoByAddress" resultMap="blackInfoResultMap">
+    	<include refid="select_all_sql"/>  where home_address = #{address} or work_address = #{address}
+    </select>
+    <!-- 根据地址查询 -->
+    <select id="selectBlackInfoByWorkName" resultMap="blackInfoResultMap">
+    	<include refid="select_all_sql"/>  where work_name = #{workName} or work_address = #{workName}
+    </select>
+    <!-- 根据id集合批量查询BlackInfo -->
+    <select id="selectBlackInfoByIdList" resultMap="blackInfoResultMap" parameterType="java.util.List">
+    	<include refid="select_all_sql"/> where id in
+    	<foreach collection="idList" item="item" index="index" separator=",">
+    		(#{item})
+    	</foreach>
+    </select>
+    <!-- 查询比对 -->
+    <select id="selectBlackInfoByQueryCompareCondition" resultMap="blackInfoResultMap" parameterType="cn.creditloans.core.dto.platform.QueryCompareCondition">
+    	<include refid="select_all_sql"/> where 1 = 1
+    	<if test="queryCompareCondition.name != null and '' != queryCompareCondition.name ">
+    		and name = #{queryCompareCondition.name}
+    	</if>
+    	<if test="queryCompareCondition.idNumber != null and '' != queryCompareCondition.idNumber ">
+    		and id_number = #{queryCompareCondition.idNumber}
+    	</if>
+    	<if test="queryCompareCondition.mobile != null and '' != queryCompareCondition.mobile ">
+    		and mobile = #{queryCompareCondition.mobile}
+    	</if>
+    	<if test="queryCompareCondition.tell != null and '' != queryCompareCondition.tell ">
+    		and (home_tell = #{queryCompareCondition.tell} or work_tell = #{queryCompareCondition.tell})
+    	</if>
+    	<if test="queryCompareCondition.address != null and '' != queryCompareCondition.address ">
+    		and (home_address = #{queryCompareCondition.address} or work_address = #{queryCompareCondition.address})
+    	</if>
+    	<if test="queryCompareCondition.workName != null and '' != queryCompareCondition.workName ">
+    		and work_name = #{queryCompareCondition.workName}
+    	</if>
+    </select>
+</mapper>

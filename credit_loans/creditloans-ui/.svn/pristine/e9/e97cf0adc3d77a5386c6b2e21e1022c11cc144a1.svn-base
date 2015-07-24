@@ -1,0 +1,264 @@
+<%@ page language="java" contentType="text/html; charset=utf-8"
+	pageEncoding="utf-8"%>
+<%@ include file="./../../common/header.jsp"%>
+<script type="text/javascript">
+
+$().ready(function() {
+	$("#tsjyxxInfoForm").validate({
+	    onkeyup: false,
+		rules: {
+			xm:{
+				required:true,
+				rangelength:[2,30]
+			},
+			zjlx:{
+				required:true
+			},
+			zjhm:{
+				required:true,
+				isIdCardNo:true
+			},
+			ywh:{
+				maxlength:[40]
+			},
+			tsjylx:{
+				required:true
+			},
+			fsrq:{
+				required:true
+			},
+			bgys:{
+				required:true,
+				isInteger:true,
+				maxlength:[4]
+			},
+			fsje:{
+				isFloat:true,
+				maxlength:[8]
+			},
+			mxxx:{
+				maxlength:[200]
+			}
+		},
+		messages:{
+			xm:{
+				required:"请输入姓名",
+				rangelength:"姓名长度为2~30个字符"
+			},
+			zjlx:{
+				required:"请选择证件类型"
+			},
+			zjhm:{
+				required:"请输入证件号码",
+				isIdCardNo:"请输入正确的身份证号码"
+			},
+			ywh:{
+				maxlength:"业务号长度不能超过40个字符"
+			},
+			tsjylx:{
+				required:"请选择特殊交易类型"
+			},
+			fsrq:{
+				required:"请选择发生日期"
+			},
+			bgys:{
+				required:"请输入变更月数",
+				isInteger:"变更月数应为整数",
+				maxlength:"变更月数长度不能超过4位"
+			},
+			fsje:{
+				isFloat:"请输入合法的数字，只能包含数字、小数点",
+				maxlength:"发生金额长度不能超过8位"
+			},
+			mxxx:{
+				maxlength:"明细信息长度不能超过200个字符"
+			}
+		},
+		errorPlacement: function(error, element) {
+			$( element ).closest( "form" ).find( "span[id='error_" + element.attr( "name" ) + "']" ).append( error );
+		},
+		submitHandler:function(){
+			var tsjyxxInfoForm = $('#tsjyxxInfoForm').serializeObject();
+			jQuery.ajax({
+				type: "post",
+			    url: "${pageContext.request.contextPath}/p2p/tsjyxx/doAdd",
+			    contentType: "application/json",
+			    data: JSON.stringify(tsjyxxInfoForm),
+			    success: function (p2pTsjyxxId) {
+			    	if(p2pTsjyxxId>0){
+				        alert("添加成功！");
+			    	}else{
+			    		alert("添加失败！");
+			    		
+			    	}
+			    	window.location.href = "${pageContext.request.contextPath}/p2p/tsjyxx/showList";
+			    },
+			    error: function () {
+			        alert("save tsjyxx error");
+			    }	
+			});
+		}
+	});
+
+});
+
+function goback(){
+	window.location.href = "${pageContext.request.contextPath}/p2p/tsjyxx/showList";
+}
+</script>
+
+<div class="main-content">
+	<div class="breadcrumbs" id="breadcrumbs">
+		<ul class="breadcrumb">
+			<li><i class="icon-home home-icon"></i> <a href="#">首页</a></li>
+			<li><a href="#">P2P贷款业务</a></li>
+			<li class="active">特殊交易信息</li>
+		</ul>
+		<!-- .breadcrumb -->
+	</div>
+
+	<div class="page-content">
+		<div class="page-header">
+			<h1>
+				特殊交易信息<small> <i class="icon-double-angle-right"></i>
+					添加特殊交易信息
+				</small>
+			</h1>
+		</div>
+		<!-- /.page-header -->
+
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="col-md-12">
+					<form id="tsjyxxInfoForm" class="form-horizontal">
+						<fieldset>
+							<div class="form-group">
+								<label for="xm" class="col-sm-1 control-label">姓名</label>
+								<div class="col-sm-3">
+									<input type="text" id="xm" name="xm" class="form-control"
+										placeholder="输入姓名">
+								</div>
+								<span id="error_xm" style="color: red" class="col-sm-2"></span>								
+								<label for="zjlx" class="col-sm-1 control-label">证件类型</label>
+								<div class="col-sm-3">
+									<select id="zjlx_select" name="zjlx" class="form-control">
+										<option value="">- 选择证件类型 -</option>
+										<option value="0">身份证</option>
+									</select>
+								</div>
+								<span id="error_zjlx" style="color: red" class="col-sm-2"></span>
+							</div>
+							<div class="form-group">
+								<label for="zjhm" class="col-sm-1 control-label">证件号码</label>
+								<div class="col-sm-3">
+									<input type="text" id="zjhm" name="zjhm" class="form-control"
+										placeholder="输入证件号码">
+								</div>
+								<span id="error_zjhm" style="color: red" class="col-sm-2"></span>
+								<label for="ywh" class="col-sm-1 control-label">业务号</label>
+								<div class="col-sm-3">
+									<input type="text" id="ywh" name="ywh" class="form-control"
+										placeholder="输入业务号">
+								</div>
+								<span id="error_ywh" style="color: red" class="col-sm-2"></span>
+							</div>
+							<div class="form-group">
+								<label for="tsjylx" class="col-sm-1 control-label">特殊交易类型</label>
+								<div class="col-sm-3">
+									<select id="tsjylx_select" name="tsjylx" class="form-control">
+										<option value="">- 选择特殊交易类型 -</option>
+										<option value="1">展期（延期）</option>
+										<option value="2">担保人代还</option>
+										<option value="3">以资抵债</option>
+										<option value="4">提前还款（部分）</option>
+										<option value="5">提前还款（全部）</option>
+										<option value="6">长期拖欠（拖欠超过180天）</option>
+										<option value="7">法律诉讼（已生效判决）</option>
+										<option value="8">贷款欺诈</option>
+										<option value="9">其他</option>
+									</select>
+								</div>
+								<span id="error_tsjylx" style="color: red" class="col-sm-2"></span>
+								<label for="fsrq" class="col-sm-1 control-label">发生日期</label>
+								<div class="col-sm-3">
+									<div class="input-group date form_date col-md-3 form-control"
+										style="padding: 0px; margin: 0px;">
+										<input class="form-control" id="fsrq" name="fsrq" type="text"
+											placeholder="发生日期" readonly="readonly"> <span
+											class="input-group-addon"><span
+											class="glyphicon glyphicon-calendar icon-calendar"></span></span> <span
+											class="input-group-addon"><span
+											class="glyphicon glyphicon-remove icon-remove"></span></span>
+									</div>
+								</div>
+								<span id="error_fsrq" style="color: red" class="col-sm-2"></span>
+							</div>
+							<div class="form-group">
+								<label for="bgys" class="col-sm-1 control-label">变更月数</label>
+								<div class="col-sm-3">
+									<input type="text" id="bgys" name="bgys" class="form-control"
+										placeholder="输入变更月数">
+								</div>
+								<span id="error_bgys" style="color: red" class="col-sm-2"></span>
+								<label for="fsje" class="col-sm-1 control-label">发生金额</label>
+								<div class="col-sm-3">
+									<input type="text" id="fsje" name="fsje" class="form-control"
+										placeholder="输入发生金额">
+								</div>
+								<span id="error_fsje" style="color: red" class="col-sm-2"></span>
+							</div>
+							<div class="form-group">
+								<label for="mxxx" class="col-sm-1 control-label">明细信息</label>
+								<div class="col-sm-3">
+									<textarea id="mxxx" name="mxxx" class="form-control" style="resize:none;" rows="5" cols="20"></textarea>
+								</div>
+								<span id="error_mxxx" style="color: red" class="col-sm-2"></span>
+							</div>
+						</fieldset>
+						<fieldset>
+							<legend></legend>
+							<div class="form-group">
+							    <label for="status" class="col-sm-5 control-label">数据状态</label>
+							    <div class="col-sm-3">							    
+							    	<input id="status_yes" name="status" type="radio" checked="checked" value="1"/> 正常 
+							      	&nbsp;&nbsp;&nbsp;
+							      	<input id="status_not" name="status" type="radio" value="2"/> 停止
+							    </div>
+							    <span id="error_status" style="color: red"></span>
+							  </div>
+						</fieldset>
+						<input type="hidden" name="orgCode" value="${orgCode}">
+						<div class="form-group">
+							<div class="col-sm-offset-5">
+								<input type="submit" class="btn btn-primary" value="保存"/>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								<input type="button" class="btn btn-success" value="返回"
+									onclick="goback()"/>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+
+		</div>
+		<!-- class:row -->
+
+	</div>
+	<!-- /.page-content -->
+
+</div>
+<!-- /.main-content -->
+<script type="text/javascript">
+    $('.form_date').datetimepicker({
+    	format: "yyyymmdd",
+        language: 'zh-CN',
+        weekStart: 1,
+        todayBtn: 1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		minView: 2,
+		forceParse: 0
+    });
+</script>
+<%@ include file="./../../common/footer.jsp"%>

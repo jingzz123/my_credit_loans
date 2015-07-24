@@ -1,0 +1,74 @@
+package cn.creditloans.core.service.impl.af;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import cn.creditloans.core.dao.af.MetadataSchemaDao;
+import cn.creditloans.core.dto.af.MetadataSchemaDTO;
+import cn.creditloans.core.entity.af.MetadataSchema;
+import cn.creditloans.core.service.MetadataSchemaService;
+import cn.creditloans.tools.page.PageModel;
+@Service("metadataSchemaServie")
+public class MetadataSchemaServiceImpl implements MetadataSchemaService {
+	private static final Log logger = LogFactory.getLog(MetadataSchemaServiceImpl.class);
+	@Autowired
+	MetadataSchemaDao metadataSchemaDao;
+	
+	@Override
+	public PageModel<MetadataSchemaDTO> getMetadataSchemaPageList(
+			MetadataSchemaDTO metadataSchemaDTO, int currentPage, int pageSize) {
+		MetadataSchema metadataSchema = new MetadataSchema();
+		BeanUtils.copyProperties(metadataSchemaDTO, metadataSchema);
+		
+		PageModel<MetadataSchemaDTO> pm = new PageModel<MetadataSchemaDTO>();
+		pm.init(currentPage, pageSize);
+		int count = metadataSchemaDao.selectPageCount(metadataSchema);
+		List<MetadataSchema> metadataSchemaList = metadataSchemaDao.selectPageList(metadataSchema, pm);
+		List<MetadataSchemaDTO> metadataSchemaDtoList = new ArrayList<MetadataSchemaDTO>();
+		for(MetadataSchema _metadataSchema : metadataSchemaList){
+			MetadataSchemaDTO _metadataSchemaDTO = new MetadataSchemaDTO();
+			BeanUtils.copyProperties(_metadataSchema, _metadataSchemaDTO);
+			metadataSchemaDtoList.add(_metadataSchemaDTO);
+		}
+		
+		pm.setTotal(count);
+		pm.setDatas(metadataSchemaDtoList);
+		return pm;
+	}
+
+	@Override
+	public int saveMetadataSchema(MetadataSchemaDTO metadataSchemaDTO) {
+		MetadataSchema metadataSchema = new MetadataSchema();
+		BeanUtils.copyProperties(metadataSchemaDTO, metadataSchema);
+		metadataSchemaDao.insert(metadataSchema);
+		int schemaId = metadataSchema.getId();
+		return schemaId;
+	}
+
+	@Override
+	public MetadataSchemaDTO getMetadataSchemaById(int schemaId) {
+		MetadataSchemaDTO metadataSchemaDTO = new MetadataSchemaDTO();
+		MetadataSchema metadataSchema = metadataSchemaDao.select(schemaId);
+		BeanUtils.copyProperties(metadataSchema, metadataSchemaDTO);
+		return metadataSchemaDTO;
+	}
+
+	@Override
+	public void updateMetadataSchema(MetadataSchemaDTO metadataSchemaDTO) {
+		MetadataSchema metadataSchema = new MetadataSchema();
+		BeanUtils.copyProperties(metadataSchemaDTO, metadataSchema);
+		metadataSchemaDao.update(metadataSchema);
+	}
+
+	@Override
+	public void deleteMetadataSchema(int schemaId) {
+		metadataSchemaDao.delete(schemaId);
+	}
+
+}

@@ -1,0 +1,141 @@
+package cn.creditloans.core.service.impl.af;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import cn.creditloans.core.dao.af.MetadataRelationDao;
+import cn.creditloans.core.dao.af.MetadataSchemaDao;
+import cn.creditloans.core.dto.af.MetadataRelationDTO;
+import cn.creditloans.core.dto.af.MetadataSchemaDTO;
+import cn.creditloans.core.entity.af.MetadataRelation;
+import cn.creditloans.core.entity.af.MetadataSchema;
+import cn.creditloans.core.service.MetadataRelationService;
+import cn.creditloans.tools.page.PageModel;
+@Service("metadataRelationServie")
+public class MetadataRelationServiceImpl implements MetadataRelationService {
+	private static final Log logger = LogFactory.getLog(MetadataRelationServiceImpl.class);
+	@Autowired
+	MetadataRelationDao metadataRelationDao;
+	
+	@Autowired
+	MetadataSchemaDao metadataSchemaDao;
+	@Override
+	public PageModel<MetadataSchemaDTO> getMetadataRelationPageList(
+			MetadataRelationDTO metadataRelationDTO, int currentPage, int pageSize) {
+		MetadataRelation metadataRelation = new MetadataRelation();
+		BeanUtils.copyProperties(metadataRelationDTO, metadataRelation);
+		
+		PageModel<MetadataSchemaDTO> pm = new PageModel<MetadataSchemaDTO>();
+		pm.init(currentPage, pageSize);
+		int count = metadataRelationDao.selectPageCount(metadataRelation);
+		List<MetadataRelation> metadataRelationList = metadataRelationDao.selectPageList(metadataRelation, pm);
+		List<MetadataSchemaDTO> metadataSchemaDTOList = new ArrayList<MetadataSchemaDTO>();
+	
+		List<MetadataSchema>  metadataSchemaList = metadataSchemaDao.selectSchemaListByList(metadataRelationList);
+		for (MetadataRelation relation : metadataRelationList) {
+			for (MetadataSchema metadataSchema : metadataSchemaList) {
+				int relationChildSchemaId = relation.getChildSchemaId();
+				int metadataSchemaId = metadataSchema.getId();
+				int sequence = relation.getSequence();
+				MetadataSchemaDTO metadataDTO = null;
+				if (relationChildSchemaId == metadataSchemaId) {
+					metadataDTO = new MetadataSchemaDTO();
+					metadataSchema.setSequence(sequence);
+					BeanUtils.copyProperties(metadataSchema, metadataDTO);
+					metadataSchemaDTOList.add(metadataDTO);
+				}
+			}
+		}
+		pm.setTotal(count);
+		pm.setDatas(metadataSchemaDTOList);
+		return pm;
+	}
+
+	@Override
+	public int saveMetadataRelation(MetadataRelationDTO metadataRelationDTO) {
+		MetadataRelation metadataRelation = new MetadataRelation();
+		BeanUtils.copyProperties(metadataRelationDTO, metadataRelation);
+		metadataRelationDao.insert(metadataRelation);
+		int mainSchemaId = metadataRelation.getMainSchemaId();
+		return mainSchemaId;
+	}
+
+	@Override
+	public List<MetadataSchemaDTO> getMetadataRelationByMainSchemaId(int mainSchemaId) {
+		List<MetadataSchemaDTO> metadataSchemaDTOList = new ArrayList<MetadataSchemaDTO>();
+		List<MetadataSchema>  metadataSchemaList = metadataSchemaDao.selectChildSchema();
+		for (MetadataSchema metadataSchema : metadataSchemaList) {
+			MetadataSchemaDTO metadataSchemaDTO = new MetadataSchemaDTO();
+			BeanUtils.copyProperties(metadataSchema, metadataSchemaDTO);
+			metadataSchemaDTOList.add(metadataSchemaDTO);
+		}
+		return metadataSchemaDTOList;
+	}
+
+	@Override
+	public void updateMetadataRelation(MetadataRelationDTO metadataRelationDTO) {
+		MetadataRelation metadataRelation = new MetadataRelation();
+		BeanUtils.copyProperties(metadataRelationDTO, metadataRelation);
+		metadataRelationDao.update(metadataRelation);
+	}
+
+	@Override
+	public void deleteMetadataRelation(int mainSchemaId,int childSchemaId) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("mainSchemaId", mainSchemaId);
+		param.put("childSchemaId", childSchemaId);
+		metadataRelationDao.deleteByIds(param);
+	}
+
+	@Override
+	public boolean checkSchemaNameIsExist(String mainSchemaId, String childSchemaId) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("mainSchemaId", Integer.parseInt(mainSchemaId));
+		param.put("childSchemaId", Integer.parseInt(childSchemaId));
+		int countName = metadataRelationDao.selectChildSchemaName(param);
+		if(countName > 0){
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean checkSequenceIsExist(String sequence) {
+		Map<String, Object> param = new HashMap<String, Object>();
+		param.put("sequence", Integer.parseInt(sequence));
+		int countSequence = metadataRelationDao.selectSequence(param);
+		if(countSequence > 0){
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public MetadataRelationDTO getMetadataRelationByIds(int mainSchemaId, int childSchemaId) {
+		Map<String, Object> param = new HashMap<>();
+		param.put("mainSchemaId", mainSchemaId);
+		param.put("childSchemaId", childSchemaId);
+		MetadataRelation metadataRelation = metadataRelationDao.selectByIds(param);
+		MetadataRelationDTO metadataRelationDTO = new MetadataRelationDTO();
+		if(metadataRelation == null) {
+			return metadataRelationDTO;
+		}
+		BeanUtils.copyProperties(metadataRelation, metadataRelationDTO);
+		metadataRelationDTO.setOldChildSchemaId(metadataRelation.getChildSchemaId());
+		metadataRelationDTO.setOldMainSchemaId(metadataRelation.getMainSchemaId());
+		metadataRelationDTO.setOldSequence(metadataRelation.getSequence());
+		return metadataRelationDTO;
+	}
+
+
+}

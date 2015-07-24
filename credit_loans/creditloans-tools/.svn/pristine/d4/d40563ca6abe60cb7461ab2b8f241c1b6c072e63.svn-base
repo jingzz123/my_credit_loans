@@ -1,0 +1,12 @@
+package cn.creditloans.tools.parameters;
+
+/**
+ * 定义一些常量
+ * @author Hero.Wu
+ *
+ */
+public class Constants {
+	
+	public static final String REEJECT = "REEJECT";
+	
+}

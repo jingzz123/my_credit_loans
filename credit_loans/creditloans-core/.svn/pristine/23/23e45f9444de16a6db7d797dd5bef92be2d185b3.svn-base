@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="cn.creditloans.core.dao.af.BaseVariableSimpleDao">
+
+	<resultMap id="resultMap" type="cn.creditloans.core.entity.af.BaseVariableSimple">
+        <id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="description" column="description" />
+		<result property="type" column="type" />
+		<result property="initValue" column="init_value" />
+		<result property="createUserId" column="create_user_id" />
+		<result property="createTime" column="create_time" />
+		<result property="upadteUserId" column="upadte_user_id" />
+		<result property="updateTime" column="update_time" />
+    </resultMap>
+    
+    <!-- 插入单个 -->
+    <insert id="insert" parameterType="cn.creditloans.core.entity.af.BaseVariableSimple">
+    	<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+		    SELECT currval('af_base_variable_simple_id_seq')
+		</selectKey>
+ 		INSERT INTO af_base_variable_simple (name,description,type,init_value,
+ 			create_user_id,create_time,upadte_user_id,update_time)
+		ALUES (#{name}, #{description}, #{type}, #{initValue}, 
+			#{createUserId}, now(), #{upadteUserId}, now());
+    </insert>
+    
+    <!-- 修改单个 -->
+    <update id="update"  parameterType="cn.creditloans.core.entity.af.BaseVariableSimple">
+    	update af_base_variable_simple set name = #{name}, description = #{description}, 
+    	            type = #{type}, init_value = #{initValue},
+					update_time = now() where id = #{id}
+    </update>
+    
+    <!-- 删除单个 -->
+    <delete id="delete" parameterType="int">
+    	delete from af_base_variable_simple where id = #{id} 
+    </delete>
+    
+    <!-- 查询单个 -->
+    <select id="select" resultMap="resultMap" parameterType="int">
+    	select * from af_base_variable_simple where id = #{id} 
+    </select>
+    
+    <!-- 查询所有 -->
+    <select id="selectAll" resultMap="resultMap" parameterType="int">
+    	select * from af_base_variable_simple 
+    </select>
+    
+	<!-- 查询总量，这里的需要根据实际条件进行查询 -->
+	<select id="selectPageCount" resultType="int" parameterType="cn.creditloans.core.entity.af.BaseVariableSimple">
+        select count(1) FROM af_base_variable_simple
+    </select>
+    
+    <!-- 根据实际情况需要修改语句 -->
+    <select id="selectPageList" resultMap="resultMap">
+         select * from af_base_variable_simple 
+         limit #{pm.pageSize} offset #{pm.startCount}
+    </select>
+
+</mapper>

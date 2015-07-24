@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="cn.creditloans.core.dao.EnterpriseDao">
+
+	<resultMap id="enterpriseResultMap" type="cn.creditloans.core.entity.enterprise.Enterprise">
+        <id property="id" column="id" />
+        <result property="typeId" column="type_id"/>
+        <result property="fid" column="fid"/>
+        <result property="name" column="name"/>
+        <result property="tel" column="tel"/>
+        <result property="fax" column="fax"/>
+        <result property="postcode" column="postcode"/>
+        <result property="email" column="email"/>
+        <result property="address" column="address"/>
+        <result property="orgCode" column="org_code"/>
+        <result property="shortName" column="short_name"/>
+        <result property="englishName" column="english_name"/>
+        <result property="prepareApprovalCode" column="prepare_approval_code"/>
+        <result property="businessApprovalCode" column="business_approval_code"/>
+        <result property="businessDate" column="business_date"/>
+        <result property="countryTaxationCode" column="country_taxation_code"/>
+        <result property="landTaxationCode" column="land_taxation_code"/>
+        <result property="registeraAddr" column="registera_addr"/>
+        <result property="registerCode" column="register_code"/>
+        <result property="registeredCapital" column="registered_capital"/>
+        <result property="legalPerson" column="legal_person"/>
+        <result property="acreage" column="acreage"/>
+        <result property="website" column="website"/>
+        <result property="note" column="note"/>
+        <result property="code" column="code"/>
+        <result property="isinvalid" column="isinvalid"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createType" column="create_type"/>
+    </resultMap>
+    
+    <sql id="select_all_sql">
+		select id, type_id, fid, name, tel, fax, postcode, email, address, org_code,
+		short_name, english_name, prepare_approval_code,
+		business_approval_code, business_date, country_taxation_code,
+		land_taxation_code, registera_addr, register_code, registered_capital,
+		legal_person, acreage, website, note, code, isinvalid, create_time,
+		update_time, create_type from enterprise
+	</sql>
+    
+    <resultMap type="cn.creditloans.core.entity.enterprise.Enterprise" id="cascadeEnterpriseRoleMenuResultMap" extends="enterpriseResultMap">
+    	<collection property="enterpriseRoleMenuList" javaType="ArrayList" column="id" ofType="cn.creditloans.core.entity.enterprise.EnterpriseRoleMenu" 
+                    select="selectEnterpriseRoleMenuListByEnterpriseId"/>
+    </resultMap>
+
+    <resultMap id="enterpriseRoleMenuResultMap" type="cn.creditloans.core.entity.enterprise.EnterpriseRoleMenu">
+        <id property="id" column="id" />
+        <result property="roleId" column="role_id"/>
+        <result property="menuId" column="menu_id"/>
+    </resultMap>
+    
+    <select id="selectEnterpriseById" resultMap="enterpriseResultMap" parameterType="int">
+        <include refid="select_all_sql" />
+        where id=#{id}
+    </select>
+    
+    <select id="selectCascadeEnterpriseById" resultMap="cascadeEnterpriseRoleMenuResultMap" parameterType="int">
+        <include refid="select_all_sql" />
+        where id=#{id}
+    </select>
+    
+    <select id="selectEnterpriseRoleMenuListByEnterpriseId" parameterType="int" resultMap="enterpriseRoleMenuResultMap">
+        select id, role_id, menu_id from enterprise_role_menu where role_id = (select id from enterprise_role where enterprise_id=#{id} and type=0)
+    </select>
+    
+    <select id="selectEnterpriseList" resultMap="enterpriseResultMap">
+        <include refid="select_all_sql" />
+    </select>
+    
+    <select id="selectEnterprisesByIds" resultMap="enterpriseResultMap">
+        <include refid="select_all_sql" />
+        where id in 
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+    </select>
+        
+    <select id="selectEnterprisesListById" resultMap="enterpriseResultMap" parameterType="int">
+        <include refid="select_all_sql" />
+        where id=#{id} or fid=#{id}
+    </select>
+    
+    <select id="selectEnterpriseListByFid" resultMap="enterpriseResultMap" parameterType="int">
+        <include refid="select_all_sql" />
+        where fid=#{fid} and isinvalid = 0
+    </select>
+    <!-- 排除已存在的code 后期平台生成不做前端添加 -->
+    <select id="selectEnterpriseByCode" resultMap="enterpriseResultMap" parameterType="String">
+        <include refid="select_all_sql" />
+        where code=#{code}
+    </select>
+    
+    <select id="selectEnterpriseCountByFid" resultType="int" parameterType="int">
+    	select count(1) from enterprise where fid = #{id}
+    </select>
+    
+    <select id="selectEnterprisePageCount" resultType="int" parameterType="cn.creditloans.core.entity.enterprise.Enterprise">
+    	select count(1) from enterprise where create_type = 1  and  fid = 0
+        <if test="name != null and '' != name">  
+			and name like '%${name}%' 
+		</if>
+		<if test="code != null and '' != code">  
+			and code = #{code}  
+		</if>
+		<if test="typeId != 0">  
+			and type_id = #{typeId}  
+		</if>
+    </select>
+    
+    <select id="selectEnterprisePageList" resultMap="enterpriseResultMap">
+        <include refid="select_all_sql" />
+        where create_type = 1 and fid = 0
+        <if test="enterprise.name != null and '' != enterprise.name">  
+			and name like '%${enterprise.name}%' 
+		</if>
+		<if test="enterprise.code != null and '' != enterprise.code">  
+			and code = #{enterprise.code}  
+		</if>
+		<if test="enterprise.typeId != 0">  
+			and type_id = #{enterprise.typeId}  
+		</if>
+		order by create_time desc limit #{pm.pageSize} offset #{pm.startCount}
+    </select>
+    
+    <select id="selectEnterpriseCodeById" resultMap="enterpriseResultMap" parameterType="int">
+        select code from enterprise where id = #{id}
+    </select>
+    
+    <!-- 插入企业信息  -->
+    <insert id="insertEnterprise" parameterType="cn.creditloans.core.entity.enterprise.Enterprise">
+		<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+			SELECT currval('enterprise_id_seq')
+		</selectKey>
+	
+		insert into enterprise (type_id, fid, name, tel, fax, postcode, email,
+		address, org_code, short_name, english_name, prepare_approval_code,
+		business_approval_code, business_date, country_taxation_code,
+		land_taxation_code, registera_addr, register_code, registered_capital,
+		legal_person, acreage, website, note, code, isinvalid, create_time,
+		update_time, create_type)
+		values (#{typeId}, #{fid}, #{name}, #{tel}, #{fax}, #{postcode}, #{email},
+		#{address}, #{orgCode}, #{shortName}, #{englishName},
+		#{prepareApprovalCode}, #{businessApprovalCode}, #{businessDate},
+		#{countryTaxationCode}, #{landTaxationCode}, #{registeraAddr},
+		#{registerCode}, #{registeredCapital}, #{legalPerson}, #{acreage},
+		#{website}, #{note}, #{code}, #{isinvalid}, now(), now(),
+		#{createType})
+	</insert>
+	
+	<!-- 更新企业信息 -->
+	<update id="updateEnterprise" parameterType="cn.creditloans.core.entity.enterprise.Enterprise">
+		update enterprise set type_id=#{typeId}, fid=#{fid}, name=#{name},
+		tel=#{tel}, fax=#{fax}, postcode=#{postcode}, email=#{email},
+		address=#{address}, org_code=#{orgCode}, short_name=#{shortName},
+		english_name=#{englishName},
+		prepare_approval_code=#{prepareApprovalCode},
+		business_approval_code=#{businessApprovalCode},
+		business_date=#{businessDate},
+		country_taxation_code=#{countryTaxationCode},
+		land_taxation_code=#{landTaxationCode},
+		registera_addr=#{registeraAddr}, register_code=#{registerCode},
+		registered_capital=#{registeredCapital}, legal_person=#{legalPerson},
+		acreage=#{acreage}, website=#{website}, note=#{note}, code=#{code},
+		isinvalid=#{isinvalid}, update_time=now(), create_type=#{createType}
+		where id = #{id}
+	</update>
+	
+    <delete id="deleteEnterpriseById" parameterType="int">
+    	update enterprise set isinvalid = 1 where id = #{id} 
+    </delete>
+    <!-- 获取企业类型 -->
+    <select id="selectEnterpriseTypeName" resultType="string" parameterType="int">
+    	select name from enterprise_type where id = #{type_id}
+    </select>
+
+    <!-- 查询企业名称是否已存在 -->
+    <select id="selectEnterpriseName" resultType="int" parameterType="map">
+    	select count(1) from enterprise where name = #{name}
+    </select>
+    
+    <select id="selectEnterpriseUser" resultType="int" parameterType="int">
+    	select count(1) from enterprise as e ,enterprise_user as en where e.id = #{id} and e.id = en.enterprise_id and en.isinvalid = 0
+    </select>    
+    <!-- 企业及资企业的个数 -->
+     <select id="selectSubsidiaryInfoCount" resultType="int" parameterType="cn.creditloans.core.entity.enterprise.Enterprise">
+    	SELECT count(1) from enterprise where (id = #{fid} or fid = #{fid}) and create_type = 2
+    	<if test="typeId != 0">
+    	    and type_id = #{typeId}  
+    	</if>    	
+		<if test="code != null and '' != code">  
+			and code = #{code}  
+		</if>
+        <if test="name != null and '' != name">  
+			and name like '%${name}%' 
+		</if>
+    </select> 
+    
+    <!-- 查询企业及其子企业 -->
+     <select id="selectSubsidiaryPageList" resultMap="enterpriseResultMap">
+     	<include refid="select_all_sql" />
+        where (id = #{enterprise.fid} or fid = #{enterprise.fid})  and create_type = 2
+        <if test="enterprise.name != null and '' != enterprise.name">  
+			and name like '%${enterprise.name}%' 
+		</if>
+		<if test="enterprise.code != null and '' != enterprise.code">  
+			and code = #{enterprise.code}  
+		</if>
+		<if test="enterprise.typeId != 0">  
+			and type_id = #{enterprise.typeId}  
+		</if>
+		order by create_time desc limit #{pm.pageSize} offset #{pm.startCount}
+    </select>
+    
+     <!-- 查询企业及其子企业 -->
+     <select id="selectSubsidiaryById" resultMap="enterpriseResultMap" parameterType="int">
+        <include refid="select_all_sql" />
+        where id = #{id} and isinvalid = 0
+    </select>
+    
+    <insert id="batchInsertEnterpriseOwnMenu" parameterType="java.util.List">
+    	<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+			SELECT currval('enterprise_own_menu_id_seq')
+		</selectKey>
+		
+        insert into enterprise_own_menu (enterprise_id, menu_id, create_time, update_time)  
+        values  
+        <foreach collection="list" item="item" index="index" separator=",">  
+            (#{item.enterpriseId}, #{item.menuId}, now(), now())
+        </foreach>
+	</insert>
+	
+	<delete id="deleteEnterpriseOwnMenuByEnterpriseId" parameterType="int">
+		delete from enterprise_own_menu where enterprise_id = #{enterpriseId}
+	</delete>
+</mapper>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="cn.creditloans.core.dao.PlatformDepartmentDao">
+
+	<resultMap id="platformDepartmentResultMap" type="cn.creditloans.core.entity.platform.PlatformDepartment">
+        <id property="id" column="id" />
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="code" column="code"/>
+        <result property="fid" column="fid"/>
+        <result property="sequence" column="sequence"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="parentName" column="fid" select="selectDepartmentParentName"></association>
+    </resultMap>
+    
+    <select id="selectPlatformDepartmentById" resultMap="platformDepartmentResultMap" parameterType="int">
+        select id, name, description, code, fid, sequence, create_time, update_time from platform_department
+        where id=#{id}
+    </select>
+    
+    <select id="selectPlatformDepartmentList" resultMap="platformDepartmentResultMap">
+        select id, name, description, code, fid, sequence, create_time, update_time from platform_department
+    </select>
+    
+    <select id="selectPlatformDepartmentsByIds" resultMap="platformDepartmentResultMap">
+        select id, name, description, code, fid, sequence, create_time, update_time from platform_department
+        where id in 
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+    </select>
+    
+    <select id="selectPlatformDepartmentListByFid" resultMap="platformDepartmentResultMap" parameterType="int">
+        select id, name, description, code, fid, sequence, create_time, update_time from platform_department
+        where fid=#{fid}
+    </select>
+    
+    <select id="selectPlatformDepartmentByCode" resultMap="platformDepartmentResultMap" parameterType="String">
+        select id, name, description, code, fid, sequence, create_time, update_time from platform_department
+        where code=#{code}
+    </select>
+    
+    <select id="selectPlatformDepartmentCountByFid" resultType="int" parameterType="int">
+    	select count(1) from platform_department where fid==#{id}
+    </select>
+    
+    <select id="selectPlatformDepartmentPageCount" resultType="int" parameterType="cn.creditloans.core.entity.platform.PlatformDepartment">
+    	select count(1) from platform_department where 1=1 	
+        <if test="name != null and '' != name">  
+			and name like '%${name}%' 
+		</if>
+		<if test="code != null and '' != code">  
+			and code = #{code}  
+		</if>
+    </select>
+    
+    <select id="selectPlatformDepartmentPageList" resultMap="platformDepartmentResultMap">
+        select id, name, description, code, fid, sequence, create_time, update_time from platform_department
+        where 1=1
+        <if test="department.name != null and '' != department.name">  
+			and name like '%${department.name}%' 
+		</if>
+		<if test="department.code != null and '' != department.code">  
+			and code = #{department.code}  
+		</if>
+		order by create_time desc limit #{pm.pageSize} offset #{pm.startCount}
+    </select>
+    
+    <insert id="insertPlatformDepartment" parameterType="cn.creditloans.core.entity.platform.PlatformDepartment">
+		<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+			SELECT currval('platform_department_id_seq')
+		</selectKey>
+	
+ 		insert into platform_department (name, description, code, fid, sequence, create_time, update_time)
+ 					values (#{name}, #{description}, #{code}, #{fid}, #{sequence}, now(), now())
+	</insert>
+	
+	<update id="updatePlatformDepartment"  parameterType="cn.creditloans.core.entity.platform.PlatformDepartment">
+		update platform_department set name=#{name}, description=#{description}, code=#{code}, fid=#{fid}, sequence=#{sequence}, update_time=now() where id = #{id}
+	</update>
+	
+    <delete id="deletePlatformDepartmentById" parameterType="int">
+    	delete from platform_department where id = #{id} 
+    </delete>
+    <!-- 获取父节点名称 -->
+    <select id="selectDepartmentParentName" parameterType="int" resultType="string">
+    	select name from platform_department where id = #{fid} 
+    </select>
+    <!-- 同级节点部门名称个数 -->
+    <select id="selectDepartmentNameCount" parameterType="map" resultType="int">
+    	select count(1) from platform_department where fid = #{fid} and name = #{name} and id != #{id} 
+    </select>
+    <!-- 验证部门编号 -->
+    <select id="selectDepartmentCode" parameterType="map" resultType="int">
+    	select count(1) from platform_department where code = #{code} and id != #{id}
+    </select>
+    
+    <!-- 部门用户  -->
+    <select id="selectDepartmentUserCount" parameterType="int" resultType="int">
+    	select count(1) from platform_department as p , platform_user as pl where p.id = pl.dep_id and p.id = #{id}
+    </select>
+</mapper>

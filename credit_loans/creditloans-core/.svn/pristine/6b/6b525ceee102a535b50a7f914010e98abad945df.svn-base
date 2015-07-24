@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base name="validate_SelfApplyInfo">
+  <define_item>
+  	<!-- 姓名 -->
+    <attribute name="name" desc="姓名" type="CSTRING" allow_null="no" use="yes">
+    	<maxLen value="32"/>
+     	<function value="check_chinese_name"/><!-- 姓名满足条件，中文+.-->
+    </attribute>
+    <!-- 身份证号码 -->
+    <attribute name="idNumber" desc="证件号码" type="CSTRING" allow_null="no" use="yes">
+    	<maxLen value="250"/>
+ 		<function value="check_id_no" />
+    </attribute>
+    <!-- 手机 -->
+    <attribute name="mobile" desc="手机号码" type="LONG" allow_null="no" use="yes">
+    	<length value="11"/>
+    	<!-- 以后会进行修改 -->
+    	<pattern value="^1[3|4|5|8][0-9]\d{4,8}$"/>
+    </attribute>
+    <!-- 是否已婚 -->
+    <attribute name="married" desc="已婚/未婚" type="CSTRING" allow_null="no" use="yes">
+      <list>
+        <enumeration value="已婚"/>
+        <enumeration value="未婚"/>
+      </list>
+	</attribute>
+	<!-- 家庭住址 -->
+	<attribute name="homeAddress" desc="家庭住址" type="CSTRING" allow_null="no" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+    <!-- 家庭电话 -->
+    <attribute name="homeTell" desc="家庭电话" type="CSTRING" allow_null="no" use="yes">
+    	<!--电话号码正则表达式（支持手机号码，3-4位区号，7-8位直播号码，1－4位分机号） ((\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$) -->
+    	<function value="check_telephone"/><!-- 电话可以是手机也可以是带区号的固定电话 -->
+    </attribute>
+    <!-- 单位名称 -->
+	<attribute name="workName" desc="单位名称" type="CSTRING" allow_null="no" use="yes">
+    	<maxLen value="128"/>
+    </attribute>
+    <!-- 单位地址 -->
+	<attribute name="workAddress" desc="单位地址" type="CSTRING" allow_null="no" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+    <!-- 单位电话 -->
+    <attribute name="workTell" desc="单位电话" type="CSTRING" allow_null="no" use="yes">
+    	<!--电话号码正则表达式（支持手机号码，3-4位区号，7-8位直播号码，1－4位分机号） ((\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$) -->
+    	<function value="check_telephone"/><!-- 电话可以是手机也可以是带区号的固定电话 -->
+    </attribute>
+    <!-- 贷款类型 -->
+    <attribute name="loanType" desc="贷款类型" type="CSTRING" allow_null="no" use="yes">
+      <list>
+        <enumeration value="个人住房贷款"/>
+        <enumeration value="个人商用房贷款[包括商住两用]"/>
+        <enumeration value="个人住房公积金贷款"/>
+        <enumeration value="个人汽车消费贷款"/>
+        <enumeration value="个人助学贷款"/>
+        <enumeration value="个人经营性贷款"/>
+        <enumeration value="农户贷款"/>
+        <enumeration value="个人消费贷款"/>
+        <enumeration value="其他"/>
+      </list>
+	</attribute>
+    <!-- 确认状态 -->
+    <attribute name="confirmedType" desc="确认状态" type="CSTRING" allow_null="no" use="yes">
+      <list>
+        <enumeration value="未知"/>
+        <enumeration value="正常"/>
+        <enumeration value="拒绝"/>
+        <enumeration value="欺诈"/>
+        <enumeration value="逾期"/>
+      </list>
+	</attribute>
+    <!-- 确认状态详细信息 -->
+    <attribute name="confirmedDetails" desc="确认状态详细信息" type="CSTRING" allow_null="no" use="yes">
+    	<rules>
+    		<!--function先做一个简单的，就是一个参数，function也可能为空-->
+    		<rule name="rule1" desc="如果确认状态为拒绝，单确认状态详细 ：个人身份不清，联系人身份不清，手机号码不清，家庭住址不清，工作单位不清">
+    			<condition lhs="$confirmedType" operator="EQUAL" rhs="拒绝" value_type="STRING"></condition>
+    			<action function="check_confirmedDetails" other_parameters=""></action>
+    		</rule>
+    		<rule name="rule2" desc="如果确认状态为欺诈，单确认状态详细 ：虚假身份，虚假信息，团体">
+    			<condition lhs="$confirmedType" operator="EQUAL" rhs="欺诈" value_type="STRING"></condition>
+    			<action function="check_confirmedDetails" other_parameters=""></action>
+    		</rule>
+    		<rule name="rule3" desc="如果确认状态为逾期，单确认状态详细 ：30天，60天，90天">
+    			<condition lhs="$confirmedType" operator="EQUAL" rhs="逾期" value_type="STRING"></condition>
+    			<action function="check_confirmedDetails" other_parameters=""></action>
+    		</rule>
+    	</rules>
+	</attribute>
+	<!-- 申请日期 -->
+	<attribute name="appliedOn" desc="申请日期" type="IDATE" allow_null="yes" use="yes">
+     	<!--为空的情况，就不要进行比较-->
+    	<compare operator="GREATER_EQUAL" parameter="#begin_date" desc="申请日期不能早于负面信息有效日期"></compare>
+    	<compare operator="LESS_EQUAL" parameter="#end_date" desc="申请日期不能晚于有效日期"></compare>
+    </attribute>
+	<!-- 确认日期 -->
+    <attribute name="confirmedDate" desc="确认日期" type="IDATE" allow_null="yes" use="yes">
+     	<!--为空的情况，就不要进行比较-->
+    	<compare operator="GREATER_EQUAL" parameter="#begin_date" desc="确认日期不能早于负面信息有效日期"></compare>
+    	<compare operator="GREATER_EQUAL" parameter="$appliedOn" desc="确认日期不能晚于申请日期"></compare>
+    	<compare operator="LESS_EQUAL" parameter="#end_date" desc="确认日期不能晚于有效日期"></compare>
+    </attribute>
+    <!-- 备注 -->
+    <attribute name="comments" desc="备注" type="CSTRING" allow_null="yes" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+    <!-- 联系人1姓名 -->
+    <attribute name="contactName1" desc="联系人1姓名" type="CSTRING" allow_null="yes" use="yes">
+    	<maxLen value="32"/>
+     	<function value="check_chinese_name"/><!-- 姓名满足条件，中文+.-->
+    </attribute>
+    <!-- 联系人1单位名称 -->
+    <attribute name="contactWork1" desc="联系人1单位名称" type="CSTRING" allow_null="yes" use="yes">
+    	<maxLen value="128"/>
+    </attribute>
+    <!-- 联系人1电话 -->
+    <attribute name="contactTell1" desc="联系人1电话" type="CSTRING" allow_null="yes" use="yes">
+    	<function value="check_telephone"/>
+    </attribute>
+    <!-- 与联系人1关系 -->
+    <attribute name="contactRelationship1" desc="与联系人1关系" type="CSTRING" allow_null="yes" use="yes">
+    	<list>
+	        <enumeration value="父"/>
+	        <enumeration value="母"/>
+	        <enumeration value="配偶"/>
+	        <enumeration value="子女"/>
+	        <enumeration value="兄弟姐妹"/>
+	        <enumeration value="其他亲属"/>
+	        <enumeration value="朋友"/>
+	        <enumeration value="同事"/>
+	        <enumeration value="其他"/>
+      	</list>
+    </attribute>
+    <!-- 联系人2姓名 -->
+    <attribute name="contactName2" desc="联系人2姓名" type="CSTRING" allow_null="yes" use="yes">
+    	<maxLen value="32"/>
+     	<function value="check_chinese_name"/><!-- 姓名满足条件，中文+.-->
+    </attribute>
+    <!-- 联系人2单位名称 -->
+    <attribute name="contactWork2" desc="联系人2单位名称" type="CSTRING" allow_null="yes" use="yes">
+    	<maxLen value="128"/>
+    </attribute>
+    <!-- 联系人2电话 -->
+    <attribute name="contactTell2" desc="联系人2电话" type="CSTRING" allow_null="yes" use="yes">
+    	<function value="check_telephone"/>
+    </attribute>
+    <!-- 与联系人2关系 -->
+    <attribute name="contactRelationship2" desc="与联系人2关系" type="CSTRING" allow_null="yes" use="yes">
+    	<list>
+	        <enumeration value="父"/>
+	        <enumeration value="母"/>
+	        <enumeration value="配偶"/>
+	        <enumeration value="子女"/>
+	        <enumeration value="兄弟姐妹"/>
+	        <enumeration value="其他亲属"/>
+	        <enumeration value="朋友"/>
+	        <enumeration value="同事"/>
+	        <enumeration value="其他"/>
+      	</list>
+    </attribute>
+    <!-- 联系人3姓名 -->
+    <attribute name="contactName3" desc="联系人3姓名" type="CSTRING" allow_null="yes" use="yes">
+    	<maxLen value="32"/>
+     	<function value="check_chinese_name"/><!-- 姓名满足条件，中文+.-->
+    </attribute>
+    <!-- 联系人3单位名称 -->
+    <attribute name="contactWork3" desc="联系人3单位名称" type="CSTRING" allow_null="yes" use="yes">
+    	<maxLen value="128"/>
+    </attribute>
+    <!-- 联系人3电话 -->
+    <attribute name="contactTell3" desc="联系人3电话" type="CSTRING" allow_null="yes" use="yes">
+    	<function value="check_telephone"/>
+    </attribute>
+    <!-- 与联系人3关系 -->
+    <attribute name="contactRelationship3" desc="与联系人3关系" type="CSTRING" allow_null="yes" use="yes">
+    	<list>
+	        <enumeration value="父"/>
+	        <enumeration value="母"/>
+	        <enumeration value="配偶"/>
+	        <enumeration value="子女"/>
+	        <enumeration value="兄弟姐妹"/>
+	        <enumeration value="其他亲属"/>
+	        <enumeration value="朋友"/>
+	        <enumeration value="同事"/>
+	        <enumeration value="其他"/>
+      	</list>
+    </attribute>
+  </define_item>
+</base>
+

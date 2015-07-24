@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 模糊匹配lucene数据分区 -->
+<fuzzys>
+	<!-- 家庭地址 -->
+	<fuzzy name="home_address" partition="true">
+		<parent name="F:/lucene_address_home"/>
+		<partitions>
+			<partition startWith="北京市" directory="110000"/>
+			<partition startWith="天津市" directory="120000"/>
+			<partition startWith="河北省" directory="130000"/>
+			<partition startWith="山西省" directory="140000"/>
+			<partition startWith="内蒙古自治区" directory="150000"/>
+			<partition startWith="辽宁省" directory="210000"/>
+			<partition startWith="吉林省" directory="220000"/>
+			<partition startWith="黑龙江省" directory="230000"/>
+			<partition startWith="上海市" directory="310000"/>
+			<partition startWith="江苏省" directory="320000"/>
+			<partition startWith="浙江省" directory="330000"/>
+			<partition startWith="安徽省" directory="340000"/>
+			<partition startWith="福建省" directory="350000"/>
+			<partition startWith="江西省" directory="360000"/>
+			<partition startWith="山东省" directory="370000"/>
+			<partition startWith="河南省" directory="410000"/>
+			<partition startWith="湖北省" directory="420000"/>
+			<partition startWith="湖南省" directory="430000"/>
+			<partition startWith="广东省" directory="440000"/>
+			<partition startWith="广西壮族自治区" directory="450000"/>
+			<partition startWith="海南省" directory="460000"/>
+			<partition startWith="重庆市" directory="500000"/>
+			<partition startWith="四川省" directory="510000"/>
+			<partition startWith="贵州省" directory="520000"/>
+			<partition startWith="云南省" directory="530000"/>
+			<partition startWith="西藏自治区" directory="540000"/>
+			<partition startWith="陕西省" directory="610000"/>
+			<partition startWith="甘肃省" directory="620000"/>
+			<partition startWith="青海省" directory="630000"/>
+			<partition startWith="宁夏回族自治区" directory="640000"/>
+			<partition startWith="新疆维吾尔自治区" directory="650000"/>
+			<partition startWith="台湾省" directory="710000"/>
+			<partition startWith="香港省" directory="810000"/>
+			<partition startWith="澳门省" directory="820000"/>
+			<other directory="000000"/>
+		</partitions>
+	</fuzzy>
+	<!-- 工作地址 -->
+	<fuzzy name="work_address" partition="true">
+		<parent name="F:/lucene_address_work"/>
+		<partitions>
+			<partition startWith="北京市" directory="110000"/>
+			<partition startWith="天津市" directory="120000"/>
+			<partition startWith="河北省" directory="130000"/>
+			<partition startWith="山西省" directory="140000"/>
+			<partition startWith="内蒙古自治区" directory="150000"/>
+			<partition startWith="辽宁省" directory="210000"/>
+			<partition startWith="吉林省" directory="220000"/>
+			<partition startWith="黑龙江省" directory="230000"/>
+			<partition startWith="上海市" directory="310000"/>
+			<partition startWith="江苏省" directory="320000"/>
+			<partition startWith="浙江省" directory="330000"/>
+			<partition startWith="安徽省" directory="340000"/>
+			<partition startWith="福建省" directory="350000"/>
+			<partition startWith="江西省" directory="360000"/>
+			<partition startWith="山东省" directory="370000"/>
+			<partition startWith="河南省" directory="410000"/>
+			<partition startWith="湖北省" directory="420000"/>
+			<partition startWith="湖南省" directory="430000"/>
+			<partition startWith="广东省" directory="440000"/>
+			<partition startWith="广西壮族自治区" directory="450000"/>
+			<partition startWith="海南省" directory="460000"/>
+			<partition startWith="重庆市" directory="500000"/>
+			<partition startWith="四川省" directory="510000"/>
+			<partition startWith="贵州省" directory="520000"/>
+			<partition startWith="云南省" directory="530000"/>
+			<partition startWith="西藏自治区" directory="540000"/>
+			<partition startWith="陕西省" directory="610000"/>
+			<partition startWith="甘肃省" directory="620000"/>
+			<partition startWith="青海省" directory="630000"/>
+			<partition startWith="宁夏回族自治区" directory="640000"/>
+			<partition startWith="新疆维吾尔自治区" directory="650000"/>
+			<partition startWith="台湾省" directory="710000"/>
+			<partition startWith="香港省" directory="810000"/>
+			<partition startWith="澳门省" directory="820000"/>
+			<other directory="000000"/>
+		</partitions>
+	</fuzzy>
+	<!-- 商户装机地址/互联网址(URL) -->
+	<fuzzy name="url_address" partition="false">
+		<parent name="F:/lucene_address_url"/>
+	</fuzzy>
+	<!-- 公司名称 -->
+	<fuzzy name="work_name" partition="false">
+		<parent name="F:/lucene_name_work"/>
+	</fuzzy>
+</fuzzys>

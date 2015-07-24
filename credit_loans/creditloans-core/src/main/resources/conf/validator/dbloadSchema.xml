@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schemadef>
+	
+	<!--申请信息（第三方）-->
+	<schema name="BlackInfo" type="Various_length">
+		<field name="name" type="Text" desc="姓名"/>
+		<field name="idNumber" type="Text" desc="证件号码"/><!--通报行：与“银行代码表”中“名称”字段值一致，同时在一定范围内-->
+		<field name="mobile" type="Text" desc="手机"/><!--贷前/贷后：贷前、贷后-->
+		<field name="married" type="Text" desc="已婚/未婚"/><!--来源：本行调查、……-->
+		<field name="homeAddress" type="Text" desc="家庭住址"/><!--欺诈类型：身份资料被他人冒用、……-->
+		<field name="homeTell" type="Text" desc="家庭电话"/><!--信息核实状态：可疑、确认-->
+		<field name="workName" type="Text" desc="单位名称"/>
+		<field name="workAddress" type="Text" desc="单位地址"/><!--证件类型：身份证、……-->
+		<field name="workTell" type="Text" desc="单位电话"/><!--证件号码：如[证件类型]=身份证，则符合身份证号码验证规则-->
+		<field name="loanType" type="Text" desc="贷款类型"/><!--证件号码虚假度：冒用、不存在，默认为冒用-->
+		<field name="confirmedType" type="Text" desc="确认状态"/>
+		<field name="confirmedDetails" type="Text" desc="确认状态详细信息"/><!--手机：符合手机号码格式要求-->
+		<field name="appliedOn" type="Text" desc="贷款申请日期"/><!--手机虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="confirmedDate" type="Text" desc="确认日期"/>
+		<field name="comments" type="Text" desc="备注"/>
+		<field name="contactName1" type="Text" desc="联系人1姓名"/>
+		<field name="contactWork1" type="Text" desc="联系人1单位名称"/>
+		<field name="contactTell1" type="Text" desc="联系人1电话"/>
+		<field name="contactRelationship1" type="Text" desc="与联系人1关系"/>
+		<field name="contactName2" type="Text" desc="联系人2姓名"/>
+		<field name="contactWork2" type="Text" desc="联系人2单位名称"/>
+		<field name="contactTell2" type="Text" desc="联系人2电话"/>
+		<field name="contactRelationship2" type="Text" desc="与联系人2关系"/>
+		<field name="contactName3" type="Text" desc="联系人3姓名"/>
+		<field name="contactWork3" type="Text" desc="联系人3单位名称"/>
+		<field name="contactTell3" type="Text" desc="联系人3电话"/>
+		<field name="contactRelationship3" type="Text" desc="与联系人3关系"/>
+		<property>
+			<delimiter>,</delimiter>
+		</property>
+	</schema>
+	
+	<!--批量比对上传文件格式-->
+	<schema name="BatchUploadInfo" type="Various_length">
+		<field name="uuid" type="Text" desc="唯一码"/>
+		<field name="name" type="Text" desc="姓名"/>
+		<field name="id_type" type="Text" desc="证件类型"/>
+		<field name="id_number" type="Text" desc="证件号码"/>
+		<field name="mobile" type="Text" desc="手机"/>
+		<field name="work_name" type="Text" desc="单位名称"/>
+		<field name="work_address" type="Text" desc="单位地址"/>
+		<field name="work_tel" type="Text" desc="单位电话"/>
+		<field name="family_address" type="Text" desc="家庭地址"/>
+		<field name="family_tel" type="Text" desc="家庭电话"/>
+		<field name="applied_on" type="Text" desc="申请日期"/>
+		<property>
+			<delimiter>,</delimiter>
+		</property>
+	</schema>
+
+</schemadef>

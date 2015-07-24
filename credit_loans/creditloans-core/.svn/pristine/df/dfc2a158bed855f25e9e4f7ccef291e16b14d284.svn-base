@@ -1,0 +1,57 @@
+package cn.creditloans.core.dao.af;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import cn.creditloans.core.dao.share.AbstractEntityDao;
+import cn.creditloans.core.entity.af.MetadataField;
+import cn.creditloans.tools.page.PageModel;
+
+/**
+ * 对af_metadata_field的DAO，通用的方法进行了继承
+ * @author Ash
+ *
+ */
+public interface MetadataFieldDao extends AbstractEntityDao<MetadataField> {
+	/**
+	 * 单个插入metadataField
+	 */
+	public void insert(MetadataField metadataField);
+	
+	/**
+	 * 单个修改metadataField
+	 */
+	public void update(MetadataField metadataField);
+	
+	/**
+	 * 根据ID删除单个metadataField
+	 */
+	public void delete(int id);
+	
+	/**
+	 * 获取单个metadataField实体信息
+	 * @param id
+	 * @return
+	 */
+	public MetadataField select(int id);
+
+	/**
+	 * 获取所有metadataField的实体
+	 * @return
+	 */
+	public List<MetadataField> selectAllInfos();
+	
+	/**
+	 * 分页查询metadataField
+	 * @param pm
+	 * @return
+	 */
+	public List<MetadataField> selectPageList(@Param("metadataField") MetadataField metadataField, @Param("pm") PageModel<?> pm);
+	
+	/**
+	 * 得到所有metadataField的数量
+	 * @return
+	 */
+	public int selectPageCount(MetadataField metadataField);
+}

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="cn.creditloans.core.dao.EnterpriseMenuDao">
+
+	<resultMap id="enterpriseMenuResultMap" type="cn.creditloans.core.entity.enterprise.EnterpriseMenu">
+        <id property="id" column="id" />
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="fid" column="fid"/>
+        <result property="status" column="status"/>
+        <result property="url" column="url"/>
+        <result property="sequence" column="sequence"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="isOpen" column="is_open"/>
+    </resultMap>
+    
+    <select id="selectEnterpriseMenuList" resultMap="enterpriseMenuResultMap">
+    	select id, name, description, fid, status, url, sequence, create_time, update_time, is_open from enterprise_menu
+    </select>
+    
+    <select id="selectEnterpriseMenuListByFid" resultMap="enterpriseMenuResultMap" parameterType="int">
+    	select id, name, description, fid, status, url, sequence, create_time, update_time, is_open from enterprise_menu
+    	where fid=#{fid}
+    </select>
+    
+    <select id="selectEnterpriseMenuById" resultMap="enterpriseMenuResultMap" parameterType="int">
+    	select id, name, description, fid, status, url, sequence, create_time, update_time, is_open from enterprise_menu
+    	where id=#{menuId}
+    </select>
+    
+    <select id="selectEnterpriseMenuListByIds" resultMap="enterpriseMenuResultMap">
+        select id, name, description, fid, status, url, sequence, create_time, update_time, is_open from enterprise_menu
+        where id in 
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		order by sequence
+    </select>
+    
+    <select id="selectEnterpriseMenuPageCount" resultType="int" parameterType="cn.creditloans.core.entity.enterprise.EnterpriseMenu">
+    	select count(1) from enterprise_menu where 1=1 	
+        <if test="name != null and '' != name">  
+			and name like '%${name}%' 
+		</if>
+		<if test="status != -1">  
+			and status = #{status}  
+		</if>
+    </select>
+    
+    <select id="selectEnterpriseMenuPageList" resultMap="enterpriseMenuResultMap">
+        select id, name, description, fid, status, url, sequence, create_time, update_time, is_open from enterprise_menu
+        where 1=1
+        <if test="menu.name != null and '' != menu.name">  
+			and name like '%${menu.name}%' 
+		</if>
+		<if test="menu.status != -1">  
+			and status = #{menu.status}  
+		</if>
+		order by create_time desc limit #{pm.pageSize} offset #{pm.startCount}
+    </select>
+    
+    <select id="selectEnterpriseMenuIdsByIsOpen" parameterType="int" resultType="java.lang.Integer">
+    	select id from enterprise_menu where is_open = #{isOpen}
+    </select>
+    
+    <select id="selectEnterpriseOwnMenuIdsByEnterpriseId" parameterType="int" resultType="java.lang.Integer">
+    	select menu_id from enterprise_own_menu where enterprise_id = #{enterpriseId}
+    </select>
+    
+    <insert id="insertEnterpriseMenu" parameterType="cn.creditloans.core.entity.enterprise.EnterpriseMenu">
+		<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+			SELECT currval('enterprise_menu_id_seq')
+		</selectKey>
+	
+ 		insert into enterprise_menu (name, description, fid, status, url, sequence, create_time, update_time, is_open)
+ 					values (#{name}, #{description}, #{fid}, #{status}, #{url}, #{sequence}, now(), now(), #{isOpen})
+	</insert>
+	
+	<update id="updateEnterpriseMenu"  parameterType="cn.creditloans.core.entity.enterprise.EnterpriseMenu">
+		update enterprise_menu set name=#{name}, description=#{description}, fid=#{fid}, status=#{status}, url=#{url}, sequence=#{sequence}, update_time=now(), is_open=#{isOpen} where id = #{id}
+	</update>
+	
+    <delete id="deleteEnterpriseMenuById" parameterType="int">
+    	delete from enterprise_menu where id = #{id} 
+    </delete>
+    
+    
+    
+</mapper>

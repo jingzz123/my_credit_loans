@@ -1,0 +1,86 @@
+package cn.creditloans.manager.controllers;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import cn.creditloans.core.dto.inner.InnerUserDTO;
+import cn.creditloans.core.service.InnerUserLoginService;
+import cn.creditloans.core.service.InnerUserService;
+import cn.creditloans.manager.util.cookie.CookieUtil;
+
+
+@Controller
+@RequestMapping(value = "")
+public class InnerUserLoginController {
+	
+	private static final Log logger = LogFactory.getLog(InnerUserLoginController.class);
+	
+	@Autowired
+	private InnerUserLoginService innerUserLoginService;
+	
+	@Autowired
+	private InnerUserService innerUserService;
+	
+	/**
+	 * 掉转到login页面
+	 * @return
+	 */
+	@RequestMapping(value="/login", method = {RequestMethod.GET, RequestMethod.POST})
+	public String login() {
+		return "/login";
+	}
+	
+	@RequestMapping(value="/doLogin", method = {RequestMethod.GET, RequestMethod.POST})
+	public String doLogin(@RequestParam(required=false) String emailAddress, 
+			@RequestParam(required=false) String password,String validateCode, HttpServletRequest request, HttpServletResponse response,HttpSession session, Model model) {
+		
+		InnerUserDTO innerUser = new InnerUserDTO();
+		try {
+			innerUser.setEmail(emailAddress);
+			innerUser.setPassword(password);
+			innerUser = innerUserLoginService.login(innerUser);
+			
+			
+			if(innerUser.getStatus() == 2){
+				model.addAttribute("errorMsg", "该用户已被禁用，无法登录系统");
+				model.addAttribute("isHaveErr", true);
+				return "/login";
+			}else{
+				CookieUtil.addCookie("platform-token", innerUser.getToken(), true, request, response);
+				model.addAttribute("innerUser", innerUser);
+				
+				return "redirect:/inner/user/showList";
+			}
+			
+		} catch (RuntimeException e) {
+			if (logger.isErrorEnabled()) {
+				logger.error(e.getMessage(), e);
+			}
+			
+			model.addAttribute("errorMsg", "用户名或密码错误");
+			model.addAttribute("isHaveErr", true);
+			return "/login";
+		}
+	}
+	
+	@RequestMapping(value="/logout", method = {RequestMethod.GET, RequestMethod.POST})
+	public String logout(HttpServletRequest request, HttpServletResponse response) {
+		String token = CookieUtil.getToken(request,"platform-token");
+		// 删除用户的缓存内容
+		innerUserService.deleteTempDatas(token);
+		//FIXME : platform-token 放入常量吧
+		// 删除 cookie
+		CookieUtil.delCookie("platform-token", request, response);
+		return "redirect:/login";
+	}
+}

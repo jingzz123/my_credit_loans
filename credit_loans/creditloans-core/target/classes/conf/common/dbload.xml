@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--parent表示配置文件所在的父目录-->
+<dbload parent="classpath:conf/validator/">
+	<schema_file name="dbloadSchema.xml"/>
+	<error_code_file name="error_creditloans.properties"/><!--错误文件名称-->
+	<!--考虑内存问题，设定每一次批次处理的数量-->
+	<batch_count name="5000"/>
+	
+	<flow name="BlackInfo">
+		<!--  
+		<schema name="BlackInfo">
+			<pk_columms name="uuid:0"/>
+		</schema>
+		-->
+		<charset name="GBK"/>
+		<title info="姓名,证件号码,手机,已婚/未婚,家庭住址,家庭电话,单位名称,单位地址,单位电话,贷款类型,确认状态,确认状态详细信息,贷款申请日期,确认日期,备注,联系人1姓名,联系人1单位名称,联系人1电话,与联系人1关系,联系人2姓名,联系人2单位名称,联系人2电话,与联系人2关系,联系人3姓名,联系人3单位名称,联系人3电话,与联系人3关系" delimiter="," need_check="true"/>
+		<gap_count name="0"/>
+		<pk_need_check name="true"/>
+		<validate_file name="rule/validate_BlackInfo.xml"/>
+	</flow>
+	<!-- 09：批量上传文件信息，这个处理流程可能和其它六个可能有差别 -->
+	<flow name="BatchUploadInfo">
+		<!--  
+		<schema name="BatchUploadInfo">
+			<pk_columms name="uuid:0"/>
+		</schema>
+		-->
+		<charset name="GBK"/>
+		<title info="唯一码*,姓名,证件类型,证件号码,手机,单位名称,单位地址,单位电话,家庭地址,家庭电话,申请日期" delimiter="," need_check="true"/>
+		<gap_count name="0"/>
+		<pk_need_check name="true"/>
+		<validate_file name="rule/validate_BatchUploadInfo.xml"/>
+	</flow>
+</dbload>

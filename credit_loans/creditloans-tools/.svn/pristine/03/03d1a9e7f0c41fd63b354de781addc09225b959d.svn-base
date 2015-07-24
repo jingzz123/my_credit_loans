@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>cn.creditloans</groupId>
+    <artifactId>creditloans</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  
+  <groupId>cn.creditloans.tools</groupId>
+  <artifactId>creditloans-tools</artifactId>
+  <packaging>jar</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>creditloans-tools</name>
+  <url>http://maven.apache.org</url>
+  
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  
+  <dependencies>
+  	<dependency>
+		<groupId>redis.clients</groupId>
+		<artifactId>jedis</artifactId>
+		<version>2.5.2</version>
+	</dependency>
+	
+	<dependency>
+  		<groupId>javax.servlet</groupId>
+  		<artifactId>servlet-api</artifactId>
+  		<version>2.5</version>
+  		<scope>compile</scope>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-core</artifactId>
+		<version>${creditloans.default.springframework.version}</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-webmvc</artifactId>
+		<version>${creditloans.default.springframework.version}</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>org.apache.poi</groupId>
+	    <artifactId>poi-ooxml</artifactId>
+	    <version>3.7</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <!-- begin lucene 4.10.2 -->
+	<dependency>
+		<groupId>org.apache.lucene</groupId>
+		<artifactId>lucene-core</artifactId>
+		<version>4.10.2</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.lucene</groupId>
+		<artifactId>lucene-analyzers-smartcn</artifactId>
+		<version>4.10.2</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.lucene</groupId>
+		<artifactId>lucene-queryparser</artifactId>
+		<version>4.10.2</version>
+	</dependency>
+	<!-- end lucene 4.10.2 -->
+	
+	<!-- begin下面为了模糊匹配开发测试所用 -->
+	<dependency>
+		<groupId>fuzzy-corp</groupId>
+		<artifactId>fuzzy-corp</artifactId>
+		<version>1.0</version>
+	</dependency>
+	<dependency>
+		<groupId>fuzzy-address</groupId>
+		<artifactId>fuzzy-address</artifactId>
+		<version>1.0</version>
+	</dependency>
+	<!-- end下面为了模糊匹配开发测试所用 -->
+	
+	<dependency>
+  		<groupId>commons-lang</groupId>
+  		<artifactId>commons-lang</artifactId>
+  		<version>2.6</version>
+	</dependency>
+	<dependency>
+		<groupId>commons-io</groupId>
+		<artifactId>commons-io</artifactId>
+		<version>2.4</version>
+	</dependency>
+	
+  </dependencies>
+</project>

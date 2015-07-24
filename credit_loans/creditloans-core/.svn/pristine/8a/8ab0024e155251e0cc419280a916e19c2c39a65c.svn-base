@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="cn.creditloans.core.dao.af.BaseActionRelationDao">
+
+	<resultMap id="resultMap" type="cn.creditloans.core.entity.af.BaseActionRelation">
+        <id property="id" column="id" />
+		<result property="baseId" column="base_id" />
+		<result property="type" column="type" />
+		<result property="actionId" column="action_id" />
+		<result property="sequence" column="sequence" />
+		<result property="createUserId" column="create_user_id" />
+		<result property="createTime" column="create_time" />
+		<result property="upadteUserId" column="upadte_user_id" />
+		<result property="updateTime" column="update_time" />
+    </resultMap>
+    
+    <!-- 插入单个 -->
+    <insert id="insert" parameterType="cn.creditloans.core.entity.af.BaseActionRelation">
+    	<selectKey order="AFTER" keyProperty="id" resultType="java.lang.Integer">
+		    SELECT currval('base_element_action_relation_id_seq')
+		</selectKey>
+ 		INSERT INTO base_element_action_relation (base_id,type,action_id,sequence,
+ 			create_user_id,create_time,upadte_user_id,update_time)
+		ALUES (#{baseId}, #{type}, #{actionId}, #{sequence},
+			#{createUserId}, now(), #{upadteUserId}, now());
+    </insert>
+    
+    <!-- 修改单个 -->
+    <update id="update"  parameterType="cn.creditloans.core.entity.af.BaseActionRelation">
+    	update base_element_action_relation set action_id = #{actionId}, 
+    	            sequence = #{sequence}, upadte_user_id = #{upadteUserId},
+					update_time = now() where id = #{id}
+    </update>
+    
+    <!-- 删除单个 -->
+    <delete id="delete" parameterType="int">
+    	delete from base_element_action_relation where id = #{id} 
+    </delete>
+    
+    <!-- 查询单个 -->
+    <select id="select" resultMap="resultMap" parameterType="int">
+    	select * from base_element_action_relation where id = #{id} 
+    </select>
+    
+    <!-- 查询所有 -->
+    <select id="selectAll" resultMap="resultMap" parameterType="int">
+    	select * from base_element_action_relation 
+    </select>
+    
+	<!-- 查询总量，这里的需要根据实际条件进行查询 -->
+	<select id="selectPageCount" resultType="int" parameterType="cn.creditloans.core.entity.af.BaseActionRelation">
+        select count(1) FROM base_element_action_relation
+    </select>
+    
+    <!-- 根据实际情况需要修改语句 -->
+    <select id="selectPageList" resultMap="resultMap">
+         select * from base_element_action_relation 
+         limit #{pm.pageSize} offset #{pm.startCount}
+    </select>
+
+</mapper>

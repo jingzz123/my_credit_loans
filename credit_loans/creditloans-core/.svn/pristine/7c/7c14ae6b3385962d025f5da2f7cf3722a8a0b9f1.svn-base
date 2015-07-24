@@ -1,0 +1,104 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+		<groupId>cn.electric</groupId>
+		<artifactId>electric</artifactId>
+		<version>1.0-SNAPSHOT</version>
+  </parent>
+  
+  <groupId>cn.electric.core</groupId>
+  <artifactId>electric-core</artifactId>
+  <packaging>jar</packaging>
+  <name>electric-core Maven Webapp</name>
+  <url>http://maven.apache.org</url>
+  
+  <dependencies>
+    <dependency>
+		<groupId>org.mybatis</groupId>
+		<artifactId>mybatis</artifactId>
+		<version>3.2.2</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.mybatis</groupId>
+		<artifactId>mybatis-spring</artifactId>
+		<version>1.2.1</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>commons-dbcp</groupId>
+		<artifactId>commons-dbcp</artifactId>
+		<version>1.4</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-jdbc</artifactId>
+		<version>${electric.default.springframework.version}</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-core</artifactId>
+		<version>${electric.default.springframework.version}</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>mysql</groupId>
+		<artifactId>mysql-connector-java</artifactId>
+		<version>5.1.25</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>redis.clients</groupId>
+		<artifactId>jedis</artifactId>
+		<version>2.1.0</version>
+	</dependency>
+	
+	<dependency>
+	  <groupId>com.alibaba</groupId>
+	  <artifactId>fastjson</artifactId>
+	  <version>1.1.41</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.mongodb</groupId>
+		<artifactId>mongo-java-driver</artifactId>
+		<version>2.11.1</version>
+	</dependency>
+	
+	<!-- 
+	<dependency>
+		<groupId>com.belerweb</groupId>
+		<artifactId>mongo-java-orm</artifactId>
+		<version>1.2</version>
+	</dependency>
+	 -->
+	
+	<!-- 文件上传 -->
+	<dependency>
+  		<groupId>commons-fileupload</groupId>
+  		<artifactId>commons-fileupload</artifactId>
+  		<version>1.3.1</version>
+	</dependency>
+	
+	<!-- 解析excel -->
+	<dependency>
+	    <groupId>org.apache.poi</groupId>
+	    <artifactId>poi-ooxml</artifactId>
+	    <version>3.7</version>
+    </dependency>
+    
+    <dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-core-asl</artifactId>
+		<version>1.9.12</version>
+	</dependency>
+	
+  </dependencies>
+  <build>
+    <finalName>electric-core</finalName>
+  </build>
+</project>

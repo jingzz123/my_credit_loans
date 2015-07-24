@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schemadef>
+	<!--中介信息-->
+	<schema name="AgentInfo" type="Various_Length">
+		<field name="uuid" type="Text" desc="唯一码"/> <!--有特定的规则-->
+		<field name="bank_id" type="Text" desc="通报行名称"/>
+		<field name="after_loan" type="Text" desc="贷前/贷后"/><!--贷前、贷后-->
+		<field name="validate_status" type="Text" desc="信息核实状态"/><!--确认、未确认-->
+		<field name="fraud_type" type="Text" desc="欺诈类型"/><!--为申请人提供虚假身份、为申请人提供虚假信息、……-->
+		<field name="name" type="Text" desc="黑中介机构名称"/>
+		<field name="name_status" type="Text" desc="机构名称虚假度"/><!--：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="address" type="Text" desc="机构地址"/>
+		<field name="address_status" type="Text" desc="机构地址虚假度"/><!--：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="telephone" type="Text" desc="机构电话"/><!--机构电话：区号-电话号码，多个电话时用','分割-->
+		<field name="telephone_status" type="Text" desc="机构电话虚假度"/><!--机构电话虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="cash_out_status" type="Text" desc="是否涉嫌套现商户"/>
+		<field name="produced_on" type="Text" desc="确认日期"/><!--确认日期：yyyyMMdd-->
+		<field name="comments" type="Text" desc="备注"/>
+		<property>
+			<delimiter>,</delimiter>
+		</property>
+	</schema>
+	
+		<!--否认办卡客户信息-->
+	<schema name="DeniedApplyInfo" type="Various_Length">
+		<field name="uuid" type="Text" desc="唯一码"/>
+		<field name="bank_id" type="Text" desc="通报行"/><!--通报行：与“银行代码表”中“名称”字段值一致，同时在一定范围内-->
+		<field name="after_loan" type="Text" desc="贷前/贷后"/><!--贷前/贷后：贷前、贷后-->
+		<field name="name" type="Text" desc="姓名"/>
+		<field name="id_type" type="Text" desc="证件类型"/><!--证件类型：身份证、……-->
+		<field name="id_number" type="Text" desc="证件号码"/><!--证件号码：如[证件类型]=身份证，则符合身份证号码验证规则-->
+		<field name="applied_on" type="Text" desc="开户日期"/><!--开户日期：yyyyMMdd-->
+		<field name="family_tel" type="Text" desc="否认人当前联系电话"/><!--否认人当前联系电话：参考格式：国别号/地区号－区号－电话号码（－分机号）-->
+		<field name="denied_on" type="Text" desc="提出否认时间"/><!--提出否认时间：yyyyMMdd。不可早于【开户时间】-->
+		<field name="validate_status" type="Text" desc="核实状态"/><!--核实状态：可选值：可疑、确认-->
+		<field name="comments" type="Text" desc="备注"/>
+		<property>
+			<delimiter>,</delimiter>
+		</property>
+	</schema>
+	
+	<!--申请信息（第三方）-->
+	<schema name="OtherPersonApplyInfo" type="Various_length">
+		<field name="uuid" type="Text" desc="唯一码"/>
+		<field name="bank_id" type="Text" desc="通报行"/><!--通报行：与“银行代码表”中“名称”字段值一致，同时在一定范围内-->
+		<field name="after_loan" type="Text" desc="贷前/贷后"/><!--贷前/贷后：贷前、贷后-->
+		<field name="source" type="Text" desc="来源"/><!--来源：本行调查、……-->
+		<field name="fraud_type" type="Text" desc="欺诈类型"/><!--欺诈类型：身份资料被他人冒用、……-->
+		<field name="validate_status" type="Text" desc="信息核实状态"/><!--信息核实状态：可疑、确认-->
+		<field name="name" type="Text" desc="姓名"/>
+		<field name="id_type" type="Text" desc="证件类型"/><!--证件类型：身份证、……-->
+		<field name="id_number" type="Text" desc="证件号码"/><!--证件号码：如[证件类型]=身份证，则符合身份证号码验证规则-->
+		<field name="id_status" type="Text" desc="证件号码虚假度"/><!--证件号码虚假度：冒用、不存在，默认为冒用-->
+		<field name="criterion" type="Text" desc="判断依据"/>
+		<field name="mobile" type="Text" desc="手机"/><!--手机：符合手机号码格式要求-->
+		<field name="mobile_status" type="Text" desc="手机虚假度"/><!--手机虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="work_name" type="Text" desc="单位名称"/>
+		<field name="work_name_status" type="Text" desc="单位名称虚假度"/><!--单位名称虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="work_address" type="Text" desc="单位地址"/>
+		<field name="work_address_status" type="Text" desc="单位地址虚假度"/><!--单位地址虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="work_tel" type="Text" desc="单位电话"/>
+		<field name="work_tel_status" type="Text" desc="单位电话虚假度"/><!--单位电话虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="family_address" type="Text" desc="家庭地址"/>
+		<field name="family_address_status" type="Text" desc="家庭地址虚假度"/><!--家庭地址虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="family_tel" type="Text" desc="家庭电话"/>
+		<field name="family_tel_status" type="Text" desc="家庭电话虚假度"/><!--家庭电话虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="applied_on" type="Text" desc="申请日期"/><!--申请日期：yyyyMMdd-->
+		<field name="produced_on" type="Text" desc="确认日期"/><!--确认日期：yyyyMMdd,空值为“”-->
+		<field name="comments" type="Text" desc="备注"/>
+		<property>
+			<delimiter>,</delimiter>
+		</property>
+	</schema>
+	
+	<!--申请信息（本人），和前面的相同-->
+	<schema name="SelfApplyInfo" type="Various_length">
+		<field name="uuid" type="Text" desc="唯一码"/>
+		<field name="bank_id" type="Text" desc="通报行"/><!--通报行：与“银行代码表”中“名称”字段值一致，同时在一定范围内-->
+		<field name="after_loan" type="Text" desc="贷前/贷后"/><!--贷前/贷后：贷前、贷后-->
+		<field name="source" type="Text" desc="来源"/><!--来源：本行调查、……-->
+		<field name="fraud_type" type="Text" desc="欺诈类型"/><!--欺诈类型：身份资料被他人冒用、……-->
+		<field name="validate_status" type="Text" desc="信息核实状态"/><!--信息核实状态：可疑、确认-->
+		<field name="name" type="Text" desc="姓名"/>
+		<field name="id_type" type="Text" desc="证件类型"/><!--证件类型：身份证、……-->
+		<field name="id_number" type="Text" desc="证件号码"/><!--证件号码：如[证件类型]=身份证，则符合身份证号码验证规则-->
+		<field name="id_status" type="Text" desc="证件号码虚假度"/><!--证件号码虚假度：冒用、不存在，默认为冒用-->
+		<field name="criterion" type="Text" desc="判断依据"/>
+		<field name="mobile" type="Text" desc="手机"/><!--手机：符合手机号码格式要求-->
+		<field name="mobile_status" type="Text" desc="手机虚假度"/><!--手机虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="work_name" type="Text" desc="单位名称"/>
+		<field name="work_name_status" type="Text" desc="单位名称虚假度"/><!--单位名称虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="work_address" type="Text" desc="单位地址"/>
+		<field name="work_address_status" type="Text" desc="单位地址虚假度"/><!--单位地址虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="work_tel" type="Text" desc="单位电话"/>
+		<field name="work_tel_status" type="Text" desc="单位电话虚假度"/><!--单位电话虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="family_address" type="Text" desc="家庭地址"/>
+		<field name="family_address_status" type="Text" desc="家庭地址虚假度"/><!--家庭地址虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="family_tel" type="Text" desc="家庭电话"/>
+		<field name="family_tel_status" type="Text" desc="家庭电话虚假度"/><!--家庭电话虚假度：冒用、真实、不存在、未确认，为空或空字符串时表示未确认-->
+		<field name="applied_on" type="Text" desc="申请日期"/><!--申请日期：yyyyMMdd-->
+		<field name="produced_on" type="Text" desc="确认日期"/><!--确认日期：yyyyMMdd,空值为“”-->
+		<field name="comments" type="Text" desc="备注"/>
+		<property>
+			<delimiter>,</delimiter>
+		</property>
+	</schema>
+	
+	<!--营销员信息-->
+	<schema name="SalesmanInfo" type="Various_length">
+		<field name="uuid" type="Text" desc="唯一码"/>
+		<field name="bank_id" type="Text" desc="通报行"/><!--通报行：与“银行代码表”中“名称”字段值一致，同时在一定范围内-->
+		<field name="after_loan" type="Text" desc="贷前/贷后"/><!--贷前/贷后：贷前、贷后-->
+		<field name="validate_status" type="Text" desc="信息核实状态"/><!--信息核实状态：可疑、确认-->
+		<field name="fraud_type" type="Text" desc="欺诈类型"/><!--欺诈类型：身份资料被他人冒用、……-->
+		<field name="name" type="Text" desc="营销员姓名"/>
+		<field name="id_type" type="Text" desc="证件类型"/><!--证件类型：身份证、……-->
+		<field name="id_number" type="Text" desc="证件号码"/><!--证件号码：如[证件类型]=身份证，则符合身份证号码验证规则-->
+		<field name="produced_on" type="Text" desc="确认日期"/><!--确认日期：yyyyMMdd,空值为“”-->
+		<field name="comments" type="Text" desc="备注"/>
+		<property>
+			<delimiter>,</delimiter>
+		</property>
+	</schema>
+	
+	<!--贷后案件信息-->
+	<schema name="AfterCaseInfo" type="Various_length">
+		<field name="uuid" type="Text" desc="唯一码"/>
+		<field name="bank_id" type="Text" desc="通报行"/><!--通报行：与“银行代码表”中“名称”字段值一致，同时在一定范围内-->
+		<field name="name" type="Text" desc="姓名"/>
+		<field name="id_type" type="Text" desc="证件类型"/><!--证件类型：身份证、……-->
+		<field name="id_number" type="Text" desc="证件号码"/><!--证件号码：如[证件类型]=身份证，则符合身份证号码验证规则-->
+		<field name="fraud_type" type="Text" desc="欺诈类型"/><!--欺诈类型：身份资料被他人冒用、……-->
+		<field name="moral_risk" type="Text" desc="是否怀疑道德风险"/><!---->
+		<field name="produced_on" type="Text" desc="确认日期"/><!--确认日期：yyyyMMdd,空值为“”-->
+		<field name="comments" type="Text" desc="备注"/>
+		<property>
+			<delimiter>,</delimiter>
+		</property>
+	</schema>
+
+	<!--套现持卡人信息-->
+	<schema name="CashCardholderInfo" type="Various_length">
+		<field name="uuid" type="Text" desc="唯一码"/>
+		<field name="bank_id" type="Text" desc="通报行"/><!--通报行：与“银行代码表”中“名称”字段值一致，同时在一定范围内-->
+		<field name="validate_status" type="Text" desc="信息核实状态"/><!--信息核实状态：可疑、确认-->
+		<field name="name" type="Text" desc="姓名"/>
+		<field name="id_type" type="Text" desc="证件类型"/><!--证件类型：身份证、……-->
+		<field name="id_number" type="Text" desc="证件号码"/><!--证件号码：如[证件类型]=身份证，则符合身份证号码验证规则-->
+		<field name="credit_quota" type="Text" desc="信用额度"/>
+		<field name="involved_money" type="Text" desc="涉案金额"/>
+		<field name="merchant_name" type="Text" desc="套现涉及商户名称"/>
+		<field name="merchant_no" type="Text" desc="套现涉及商户代码"/>
+		<field name="work_name" type="Text" desc="单位名称"/>
+		<field name="work_tel" type="Text" desc="单位电话"/>
+		<field name="phone" type="Text" desc="手机"/>
+		<field name="produced_on" type="Text" desc="确认日期"/><!--确认日期：yyyyMMdd,空值为“”-->
+		<field name="comments" type="Text" desc="备注"/>
+		<property>
+			<delimiter>,</delimiter>
+		</property>
+	</schema>
+
+	<!--套现商户信息-->
+	<schema name="CashTenantInfo" type="Various_length">
+		<field name="uuid" type="Text" desc="唯一码"/><!---->
+		<field name="bank_id" type="Text" desc="通报行"/><!--通报行：与“银行代码表”中“名称”字段值一致，同时在一定范围内-->
+		<field name="validate_status" type="Text" desc="信息核实状态"/><!--信息核实状态：可疑、确认-->
+		<field name="name" type="Text" desc="商户名称"/><!---->
+		<field name="merchant_type" type="Text" desc="商户类别(MCC)"/>
+		<field name="merchant_url" type="Text" desc="商户装机地址/互联网址(URL)"/>
+		<field name="merchant_code" type="Text" desc="商户代码（银联）"/>
+		<field name="terminal_code" type="Text" desc="终端号码"/>
+		<field name="city" type="Text" desc="所在城市"/>
+		<field name="acquirer" type="Text" desc="收单行"/>
+		<field name="produced_on" type="Text" desc="确认日期"/><!--确认日期：yyyyMMdd,空值为“”-->
+		<field name="comments" type="Text" desc="备注"/>
+		<property>
+			<delimiter>,</delimiter>
+		</property>
+	</schema>
+
+	<!--批量比对上传文件格式-->
+	<schema name="BatchUploadInfo" type="Various_length">
+		<field name="uuid" type="Text" desc="唯一码"/>
+		<field name="name" type="Text" desc="姓名"/>
+		<field name="id_type" type="Text" desc="证件类型"/>
+		<field name="id_number" type="Text" desc="证件号码"/>
+		<field name="mobile" type="Text" desc="手机"/>
+		<field name="work_name" type="Text" desc="单位名称"/>
+		<field name="work_address" type="Text" desc="单位地址"/>
+		<field name="work_tel" type="Text" desc="单位电话"/>
+		<field name="family_address" type="Text" desc="家庭地址"/>
+		<field name="family_tel" type="Text" desc="家庭电话"/>
+		<field name="applied_on" type="Text" desc="申请日期"/>
+		<property>
+			<delimiter>,</delimiter>
+		</property>
+	</schema>
+
+</schemadef>

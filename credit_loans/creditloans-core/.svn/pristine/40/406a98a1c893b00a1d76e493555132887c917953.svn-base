@@ -1,0 +1,13 @@
+package cn.creditloans.core.dao.af;
+
+import cn.creditloans.core.dao.share.AbstractEntityDao;
+import cn.creditloans.core.entity.af.BaseVariableSituation;
+
+/**
+ * 对af_base_variable_situation的DAO，通用的方法进行了继承
+ * @author Ash
+ *
+ */
+public interface BaseVariableSituationDao extends AbstractEntityDao<BaseVariableSituation> {
+
+}

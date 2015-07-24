@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base name="validate_AgentInfo">
+  <define_item>
+    <attribute name="uuid" desc="唯一码，有特定的规则" type="LONG" allow_null="no" use="yes">
+    	<length value="19"/>
+    </attribute>
+    <attribute name="uuid" desc="唯一码的前三位必须为传入行的银行代码" begin_pos="0" end_pos="3" type="INT" allow_null="no" use="yes">
+      <list>
+        <enumeration value="101"/>
+        <enumeration value="102"/>
+        <enumeration value="103"/>
+        <enumeration value="104"/>
+        <enumeration value="105"/>
+        <enumeration value="106"/>
+        <enumeration value="107"/>
+      </list>
+      <!--等于传入的银行代码，这个参数会从外部获取，并put到Validator中-->
+      <compare operator="EQUAL" parameter="#bankID" desc="唯一码的前三位必须为传入行的银行代码"/>
+    </attribute>
+    <attribute name="uuid" desc="唯一码的4~5位必须为传入的业务类型" begin_pos="3" end_pos="5" type="STRING" allow_null="no" use="yes">
+      <list>
+        <enumeration value="01"/>
+        <enumeration value="02"/>
+        <enumeration value="03"/>
+        <enumeration value="04"/>
+        <enumeration value="05"/>
+        <enumeration value="06"/>
+        <enumeration value="07"/>
+        <enumeration value="08"/>
+      </list>
+      <!--等于传入的业务类型-->
+      <compare operator="EQUAL" parameter="#businessType" desc="唯一码的4~5位必须为传入的业务类型"/>
+    </attribute>
+    <attribute name="uuid" desc="唯一码的6~14位必须为8位日期" begin_pos="5" end_pos="13" type="IDATE" allow_null="no" use="yes"/>
+    <attribute name="bank_id" desc="银行名称" type="CSTRING" allow_null="no" use="yes">
+      <!--等于传入的银行名称-->
+      <compare operator="EQUAL" parameter="#bankName" desc="必须是传入银行的银行名称"/>
+      <list>
+        <enumeration value="光大"/>
+        <enumeration value="广发"/>
+        <enumeration value="华夏"/>
+        <enumeration value="民生"/>
+        <enumeration value="平安"/>
+        <enumeration value="兴业"/>
+        <enumeration value="中信"/>
+      </list>
+    </attribute>
+    <attribute name="after_loan" desc="贷前/贷后" type="CSTRING" allow_null="no" use="yes">
+      <list>
+        <enumeration value="贷前"/>
+        <enumeration value="贷后"/>
+        <enumeration value="未确认"/>
+      </list>
+    </attribute>
+    <attribute name="validate_status" desc="信息核实状态" type="CSTRING" allow_null="no" use="yes">
+      <list>
+        <enumeration value="可疑"/>
+        <enumeration value="确认"/>
+      </list>
+    </attribute>
+    <attribute name="fraud_type" desc="欺诈类型" type="CSTRING" allow_null="no" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+    <attribute name="name" desc="黑中介机构名称" type="CSTRING" allow_null="no" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+    <attribute name="name_status" desc="机构名称虚假度" type="CSTRING" allow_null="yes" use="yes">
+      <list>
+        <enumeration value="冒用"/>
+        <enumeration value="真实"/>
+        <enumeration value="不存在"/>
+        <enumeration value="未确认"/>
+      </list>
+    </attribute>
+    <attribute name="address" desc="机构地址" type="CSTRING" allow_null="yes" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+    <attribute name="address_status" desc="机构地址虚假度" type="CSTRING" allow_null="yes" use="yes">
+      <list>
+        <enumeration value="冒用"/>
+        <enumeration value="真实"/>
+        <enumeration value="不存在"/>
+        <enumeration value="未确认"/>
+      </list>
+    </attribute>
+    <attribute name="telephone" desc="机构电话" type="CSTRING" allow_null="yes" use="yes">
+    	<!--电话号码正则表达式（支持手机号码，3-4位区号，7-8位直播号码，1－4位分机号） ((\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$) -->
+    	<function value="check_telephone"/><!-- 电话可以是手机也可以是带区号的固定电话 -->
+    </attribute>
+    <attribute name="telephone_status" desc="机构电话虚假度" type="CSTRING" allow_null="yes" use="yes">
+      <list>
+        <enumeration value="冒用"/>
+        <enumeration value="真实"/>
+        <enumeration value="不存在"/>
+        <enumeration value="未确认"/>
+      </list>
+    </attribute>
+    <attribute name="cash_out_status" desc="是否涉嫌套现商户" type="CSTRING" allow_null="yes" use="yes">
+      <list>
+        <enumeration value="是" />
+        <enumeration value="否" />
+      </list>
+    </attribute>
+    <!--DATE2表示yyyyMMdd-->
+    <attribute name="produced_on" desc="确认日期" type="IDATE" allow_null="yes" use="yes">
+    	<!--为空的情况，就不要进行比较-->
+    	<compare operator="GREATER_EQUAL" parameter="#begin_date" desc="确认日期不能早于负面信息有效日期"></compare>
+    	<compare operator="LESS_EQUAL" parameter="#end_date" desc="确认日期不能晚于有效日期"></compare>
+    </attribute>
+    <attribute name="comments" desc="备注" type="CSTRING" allow_null="yes" use="yes">
+    	<maxLen value="250"/>
+    </attribute>
+  </define_item>
+</base>
+

@@ -1,0 +1,6 @@
+#enterprise user login time out(second)
+enterpriseuser_timeout=600
+#前台所有功能每页显示条数
+enterprise_page_show_count=10
+#enterpriseuser reset password
+enterpriseuser_reset_password=111111

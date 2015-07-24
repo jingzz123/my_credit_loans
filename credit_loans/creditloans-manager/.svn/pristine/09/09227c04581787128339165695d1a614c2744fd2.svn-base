@@ -1,0 +1,162 @@
+package cn.creditloans.manager.controllers;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import cn.creditloans.core.dto.af.MetadataRelationDTO;
+import cn.creditloans.core.dto.af.MetadataSchemaDTO;
+import cn.creditloans.core.dto.platform.PlatformUserDTO;
+import cn.creditloans.core.service.MetadataRelationService;
+import cn.creditloans.core.service.PlatformUserService;
+import cn.creditloans.manager.util.cookie.CookieUtil;
+import cn.creditloans.tools.constants.Constants;
+import cn.creditloans.tools.page.PageModel;
+import cn.creditloans.tools.util.CreditloansPropertyPlaceholderConfigurer;
+
+@Controller
+@RequestMapping(value = "/regulation/metadata/relation")
+public class MetadataRelationController {
+	private static final Log logger = LogFactory.getLog(MetadataRelationController.class);
+	@Autowired
+	MetadataRelationService metadataRelationService;
+	
+	@Autowired
+	PlatformUserService platformUserService;
+	
+	/**
+	 * 打开relation管理的页面
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/showList", method = { RequestMethod.GET,
+			RequestMethod.POST })
+	public String getMetadataRelationList(Model model, @RequestParam(value = "currentPage", required = false) String _currentPage, MetadataRelationDTO metadataRelationDTO) {
+		int currentPage = 1;
+		if (_currentPage != null && _currentPage != "") {
+			currentPage = Integer.parseInt(_currentPage.toString());
+		}
+		int pageSize = Integer.parseInt(CreditloansPropertyPlaceholderConfigurer.getContextProperty(Constants.PLATFORM_PAGE_SHOW_COUNT));
+		List<MetadataSchemaDTO>  metadataRelationDTOList= metadataRelationService.getMetadataRelationByMainSchemaId(metadataRelationDTO.getMainSchemaId());
+		
+		PageModel<MetadataSchemaDTO> metadataRelationPage = metadataRelationService.getMetadataRelationPageList(metadataRelationDTO,
+				currentPage, pageSize);
+		model.addAttribute("metadataRelationPage", metadataRelationPage);
+		model.addAttribute("queryDto", metadataRelationDTO);
+		model.addAttribute("metadataRelationDTOList",metadataRelationDTOList);
+		return "/regulation/metadata/relation/regulation_relation_list";
+	}
+	
+	/**
+	 * 打开relation管理添加的页面
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/add", method = { RequestMethod.GET,
+			RequestMethod.POST })
+	public String showAddMetadataRelation(Model model, @RequestParam(value="mainSchemaId", required=false) String mainSchemaId){
+		List<MetadataSchemaDTO> metadataSchemaDTOList = metadataRelationService.getMetadataRelationByMainSchemaId(Integer.parseInt(mainSchemaId));
+		model.addAttribute("metadataSchemaDTOList", metadataSchemaDTOList);
+		model.addAttribute("mainSchemaId",mainSchemaId);
+		return "/regulation/metadata/relation/regulation_relation_add";
+	}
+	
+	
+	/**
+	 * 添加relation
+	 * @param metadataRelationDTO
+	 * @return
+	 */
+	@RequestMapping(value="/doAdd", method={RequestMethod.GET, RequestMethod.POST})
+	public @ResponseBody int addMetadataRelationId(@RequestBody MetadataRelationDTO metadataRelationDTO, HttpServletRequest request) {
+		PlatformUserDTO platformUserDto = platformUserService.getPlatformUserDtoFromCache(CookieUtil.getToken(request, "platform-token"));
+		metadataRelationDTO.setCreateUserId(platformUserDto.getId());
+		metadataRelationDTO.setUpadteUserId(platformUserDto.getId());
+		int metadataRelationId = metadataRelationService.saveMetadataRelation(metadataRelationDTO);
+		return metadataRelationId;
+	}
+	
+	/**
+	 * 打开relation管理修改的页面
+	 * @param model relationId
+	 * @return
+	 */
+	@RequestMapping(value = "/edit", method = { RequestMethod.GET,
+			RequestMethod.POST })
+	public String showEditMetadataRelation(Model model,@RequestParam(value = "mainSchemaId", required = false) String mainSchemaId,
+			@RequestParam(value = "childSchemaId", required = false) String childSchemaId){
+		MetadataRelationDTO metadataRelationDTO = metadataRelationService.getMetadataRelationByIds(Integer.parseInt(mainSchemaId),Integer.parseInt(childSchemaId));
+		List<MetadataSchemaDTO> metadataSchemaDTOList = metadataRelationService.getMetadataRelationByMainSchemaId(Integer.parseInt(mainSchemaId));
+		model.addAttribute("metadataSchemaDTOList", metadataSchemaDTOList);
+		model.addAttribute("metadataRelationDTO", metadataRelationDTO);
+		return "/regulation/metadata/relation/regulation_relation_edit";
+	}
+	
+	/**
+	 * 修改relation
+	 * @param metadataRelationDTO
+	 * @return
+	 */
+	@RequestMapping(value="/doEdit", method={RequestMethod.GET, RequestMethod.POST})
+	public @ResponseBody void editMetadataRelation(@RequestBody MetadataRelationDTO metadataRelationDTO, HttpServletRequest request) {
+		PlatformUserDTO platformUserDto = platformUserService.getPlatformUserDtoFromCache(CookieUtil.getToken(request, "platform-token"));
+		metadataRelationDTO.setUpadteUserId(platformUserDto.getId());
+		metadataRelationService.updateMetadataRelation(metadataRelationDTO);
+	}
+
+	/**
+	 * 删除relation
+	 * @param mainSchemaId
+	 * @return
+	 */
+	@RequestMapping(value="/doDelete", method={RequestMethod.GET, RequestMethod.POST})
+	public @ResponseBody void deleteMetadataRelation(@RequestParam(value = "mainSchemaId", required = false) String mainSchemaId,
+			@RequestParam(value = "childSchemaId", required = false) String childSchemaId){
+		metadataRelationService.deleteMetadataRelation(Integer.parseInt(mainSchemaId),Integer.parseInt(childSchemaId));
+	}
+	
+	/**
+	 * 检查schema名称是否存在
+	 * @param schemaName   schema名称
+	 * @return
+	 */
+	@RequestMapping(value = "checkSchemaName" , method = {RequestMethod.GET , RequestMethod.POST})
+	public @ResponseBody boolean checkSchemaName(@RequestParam("mainSchemaId") String mainSchemaId, @RequestParam("childSchemaId") String childSchemaId,
+			@RequestParam("oldMainSchemaId") String oldMainSchemaId, @RequestParam("oldChildSchemaId") String oldChildSchemaId){
+		if(mainSchemaId.equals(oldMainSchemaId) && childSchemaId.equals(oldChildSchemaId)){
+			return true;
+		}
+		if(!StringUtils.isEmpty(mainSchemaId)&&!StringUtils.isEmpty(childSchemaId)){
+			return metadataRelationService.checkSchemaNameIsExist(mainSchemaId,childSchemaId);
+		}
+		return true;
+	}
+	/**
+	 * 检查sequence是否存在
+	 * @param    sequence
+	 * @return
+	 */
+	@RequestMapping(value = "checkSequence" , method = {RequestMethod.GET , RequestMethod.POST})
+	public @ResponseBody boolean checkSequence(@RequestParam("sequence") String sequence,@RequestParam("oldSequence") String oldSequence){
+		if(sequence.equals(oldSequence)) {
+			return true;
+		}
+		if(!StringUtils.isEmpty(sequence)){
+			return metadataRelationService.checkSequenceIsExist(sequence);
+		}
+		return true;
+	}
+	
+}
